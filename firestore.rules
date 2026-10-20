@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Courses and reviews can be read publicly
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Consultations and Level test submissions can be created by anyone
+    match /consultations/{consultationId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    match /level_tests/{testId} {
+      allow create: if true;
+      allow read: if request.auth != null;
+    }
+
+    // Default rule
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
