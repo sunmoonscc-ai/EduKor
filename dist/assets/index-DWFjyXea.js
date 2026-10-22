@@ -1099,7 +1099,7 @@ Total Duration: ${c-l}ms`),J.resolve({didRun:!0,sequenceNumbersCollected:r,targe
       <!-- 헤더 -->
       <div class="flex items-center justify-between">
         <h2 class="font-headline-md text-headline-md text-on-surface font-bold">프로필 정보</h2>
-        <button id="btn-close-profile" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
+        <button id="btn-close-profile-x" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
           <span class="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
         </button>
       </div>
@@ -1139,8 +1139,8 @@ Total Duration: ${c-l}ms`),J.resolve({didRun:!0,sequenceNumbersCollected:r,targe
       </div>
 
       <!-- 닫기 버튼 -->
-      <button class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors">
+      <button id="btn-close-profile-bottom" class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors">
         닫기
       </button>
     </div>
-  `,document.body.appendChild(e);let t=document.getElementById(`profile-overlay`),n=document.getElementById(`btn-close-profile`),r=e.querySelector(`button:last-child`),i=()=>e.remove();t.addEventListener(`click`,i),n.addEventListener(`click`,i),r.addEventListener(`click`,i)}async function oS(){(await Mx()).success&&(Lx=null,tS(`로그아웃되었습니다.`,`secondary`),await Bx(`login`))}async function sS(){nS(),Nx(e=>{if(Lx=e,e){console.log(`👤 로그인됨:`,e.email),rS();let t=document.getElementById(`nav-admin`);t&&(e.role===`admin`?t.classList.remove(`hidden`):t.classList.add(`hidden`))}else console.log(`🚪 로그아웃됨`),rS()}),zx.forEach(e=>{e.addEventListener(`click`,()=>Bx(e.dataset.view))}),Lx?await Bx(`landing`):await Bx(`login`)}sS();
+  `,document.body.appendChild(e);let t=()=>e.remove();document.getElementById(`profile-overlay`).addEventListener(`click`,t),document.getElementById(`btn-close-profile-x`).addEventListener(`click`,t),document.getElementById(`btn-close-profile-bottom`).addEventListener(`click`,t)}async function oS(){(await Mx()).success&&(Lx=null,tS(`로그아웃되었습니다.`,`secondary`),await Bx(`login`))}async function sS(){nS(),Nx(e=>{if(Lx=e,e){console.log(`👤 로그인됨:`,e.email),rS();let t=document.getElementById(`nav-admin`);t&&(e.role===`admin`?t.classList.remove(`hidden`):t.classList.add(`hidden`))}else console.log(`🚪 로그아웃됨`),rS()}),zx.forEach(e=>{e.addEventListener(`click`,()=>Bx(e.dataset.view))}),Lx?await Bx(`landing`):await Bx(`login`)}sS();

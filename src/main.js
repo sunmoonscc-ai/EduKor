@@ -640,7 +640,7 @@ function showProfileModal() {
       <!-- 헤더 -->
       <div class="flex items-center justify-between">
         <h2 class="font-headline-md text-headline-md text-on-surface font-bold">프로필 정보</h2>
-        <button id="btn-close-profile" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
+        <button id="btn-close-profile-x" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
           <span class="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
         </button>
       </div>
@@ -685,7 +685,7 @@ function showProfileModal() {
       </div>
 
       <!-- 닫기 버튼 -->
-      <button class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors">
+      <button id="btn-close-profile-bottom" class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors">
         닫기
       </button>
     </div>
@@ -694,15 +694,12 @@ function showProfileModal() {
   document.body.appendChild(modal);
 
   // 닫기 이벤트
-  const overlay = document.getElementById('profile-overlay');
-  const closeBtn = document.getElementById('btn-close-profile');
-  const closeMainBtn = modal.querySelector('button:last-child');
-
   const closeModal = () => modal.remove();
 
-  overlay.addEventListener('click', closeModal);
-  closeBtn.addEventListener('click', closeModal);
-  closeMainBtn.addEventListener('click', closeModal);
+  // 모든 닫기 방법에 이벤트 리스너 등록
+  document.getElementById('profile-overlay').addEventListener('click', closeModal);
+  document.getElementById('btn-close-profile-x').addEventListener('click', closeModal);
+  document.getElementById('btn-close-profile-bottom').addEventListener('click', closeModal);
 }
 
 async function handleLogout() {
