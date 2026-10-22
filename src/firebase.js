@@ -32,14 +32,25 @@ const firebaseConfig = {
 
 // Check if Firebase config is properly provided
 export const isFirebaseConfigured = Boolean(
-  firebaseConfig.apiKey && 
-  firebaseConfig.projectId && 
+  firebaseConfig.apiKey &&
+  firebaseConfig.projectId &&
   firebaseConfig.apiKey !== 'YOUR_FIREBASE_API_KEY'
 );
 
 let app = null;
 let db = null;
 let auth = null;
+
+// 디버깅용 로그
+console.log('🔧 Firebase Config Check:', {
+  apiKey: firebaseConfig.apiKey ? '✓' : '✗',
+  authDomain: firebaseConfig.authDomain ? '✓' : '✗',
+  projectId: firebaseConfig.projectId ? '✓' : '✗',
+  storageBucket: firebaseConfig.storageBucket ? '✓' : '✗',
+  messagingSenderId: firebaseConfig.messagingSenderId ? '✓' : '✗',
+  appId: firebaseConfig.appId ? '✓' : '✗',
+  isConfigured: isFirebaseConfigured
+});
 
 if (isFirebaseConfigured) {
   try {
@@ -48,10 +59,12 @@ if (isFirebaseConfigured) {
     auth = getAuth(app);
     console.log('🔥 Firebase initialized successfully with project:', firebaseConfig.projectId);
   } catch (err) {
+    console.error('❌ Firebase init error:', err);
     console.warn('⚠️ Firebase init warning:', err);
   }
 } else {
-  console.info('ℹ️ Firebase is running in local demo mode. Add VITE_FIREBASE_* keys to .env to connect live Firestore.');
+  console.warn('⚠️ Firebase is NOT configured. Using local demo mode.');
+  console.warn('📝 Add VITE_FIREBASE_* keys to .env to enable Firestore');
 }
 
 export {
