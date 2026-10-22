@@ -524,35 +524,60 @@ function filterUsers(searchQuery, roleFilter = 'all') {
 }
 
 function renderUsersList(users) {
-  const container = document.getElementById('users-list-container');
-  const emptyState = document.getElementById('users-empty-state');
+  try {
+    const container = document.getElementById('users-list-container');
+    const emptyState = document.getElementById('users-empty-state');
 
-  if (!container) return;
+    console.log(`📍 renderUsersList 호출: ${users.length}명의 사용자`);
 
-  if (users.length === 0) {
-    container?.classList.add('hidden');
-    emptyState?.classList.remove('hidden');
-    return;
+    if (!container) {
+      console.warn('⚠️ users-list-container를 찾을 수 없습니다');
+      return;
+    }
+
+    if (users.length === 0) {
+      console.log('📭 사용자 없음 상태 표시');
+      container?.classList.add('hidden');
+      emptyState?.classList.remove('hidden');
+      return;
+    }
+
+    console.log(`✅ ${users.length}명의 사용자 렌더링`);
+    container.classList.remove('hidden');
+    emptyState?.classList.add('hidden');
+
+    const cardsHTML = users.map(user => {
+      try {
+        return renderUserCard(user);
+      } catch (err) {
+        console.error(`❌ 사용자 카드 렌더링 실패 (${user.email}):`, err);
+        return '';
+      }
+    }).join('');
+
+    container.innerHTML = cardsHTML;
+    console.log(`🎯 DOM 업데이트 완료`);
+
+    // 사용자 카드 이벤트
+    const cards = container.querySelectorAll('.user-card');
+    console.log(`🔗 ${cards.length}개의 사용자 카드 이벤트 등록`);
+
+    cards.forEach(card => {
+      const userId = card.dataset.userId;
+      const user = users.find(u => u.uid === userId);
+
+      card.querySelector('.btn-view-user')?.addEventListener('click', () => {
+        showUserDetailModal(user);
+      });
+
+      card.querySelector('.btn-edit-user')?.addEventListener('click', () => {
+        showUserEditModal(user);
+      });
+    });
+  } catch (error) {
+    console.error('❌ renderUsersList 오류:', error);
+    showToast('사용자 목록 렌더링 중 오류 발생', 'error');
   }
-
-  container.classList.remove('hidden');
-  emptyState?.classList.add('hidden');
-
-  container.innerHTML = users.map(user => renderUserCard(user)).join('');
-
-  // 사용자 카드 이벤트
-  container.querySelectorAll('.user-card').forEach(card => {
-    const userId = card.dataset.userId;
-    const user = users.find(u => u.uid === userId);
-
-    card.querySelector('.btn-view-user')?.addEventListener('click', () => {
-      showUserDetailModal(user);
-    });
-
-    card.querySelector('.btn-edit-user')?.addEventListener('click', () => {
-      showUserEditModal(user);
-    });
-  });
 }
 
 function showUserDetailModal(user) {
