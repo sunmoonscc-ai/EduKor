@@ -586,54 +586,73 @@ function renderUsersList(users) {
     const emptyState = document.getElementById('users-empty-state');
 
     console.log(`📍 renderUsersList 호출: ${users.length}명의 사용자`);
+    console.log('🔍 DOM 요소 확인:', {
+      containerFound: !!container,
+      emptyStateFound: !!emptyState
+    });
 
     if (!container) {
-      console.warn('⚠️ users-list-container를 찾을 수 없습니다');
+      console.error('❌ users-list-container를 찾을 수 없습니다!');
+      showToast('❌ 사용자 목록 컨테이너를 찾을 수 없습니다.', 'error');
       return;
     }
 
     if (users.length === 0) {
       console.log('📭 사용자 없음 상태 표시');
-      container?.classList.add('hidden');
+      container.classList.add('hidden');
       emptyState?.classList.remove('hidden');
+      showToast('⚠️ 사용자가 없습니다.', 'secondary');
       return;
     }
 
-    console.log(`✅ ${users.length}명의 사용자 렌더링`);
+    console.log(`✅ ${users.length}명의 사용자 렌더링 시작`);
     container.classList.remove('hidden');
     emptyState?.classList.add('hidden');
 
     const cardsHTML = users.map(user => {
       try {
-        return renderUserCard(user);
+        const card = renderUserCard(user);
+        console.log(`✅ 카드 생성: ${user.email}`);
+        return card;
       } catch (err) {
         console.error(`❌ 사용자 카드 렌더링 실패 (${user.email}):`, err);
         return '';
       }
     }).join('');
 
+    console.log(`📝 HTML 생성 완료, 길이: ${cardsHTML.length}자`);
     container.innerHTML = cardsHTML;
     console.log(`🎯 DOM 업데이트 완료`);
+    showToast(`✅ ${users.length}명의 사용자 표시 완료`, 'secondary');
 
     // 사용자 카드 이벤트
     const cards = container.querySelectorAll('.user-card');
-    console.log(`🔗 ${cards.length}개의 사용자 카드 이벤트 등록`);
+    console.log(`🔗 ${cards.length}개의 사용자 카드 발견`);
 
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
       const userId = card.dataset.userId;
       const user = users.find(u => u.uid === userId);
+      console.log(`📌 카드 ${index + 1}: ${user?.email || 'unknown'}`);
 
       card.querySelector('.btn-view-user')?.addEventListener('click', () => {
+        console.log('👁️ 상세 정보 버튼 클릭:', user?.email);
         showUserDetailModal(user);
       });
 
       card.querySelector('.btn-edit-user')?.addEventListener('click', () => {
+        console.log('✏️ 편집 버튼 클릭:', user?.email);
         showUserEditModal(user);
       });
     });
+
+    console.log(`✨ renderUsersList 완료`);
   } catch (error) {
     console.error('❌ renderUsersList 오류:', error);
-    showToast('사용자 목록 렌더링 중 오류 발생', 'error');
+    console.error('오류 상세:', {
+      message: error.message,
+      stack: error.stack
+    });
+    showToast(`❌ 렌더링 오류: ${error.message}`, 'error');
   }
 }
 
