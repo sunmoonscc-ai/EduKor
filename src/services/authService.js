@@ -33,6 +33,7 @@ export async function loginWithGoogle() {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     const isAdmin = ADMIN_EMAILS.includes(user.email);
+    let isNewUser = false;
 
     // Firestore에 사용자 정보 저장/업데이트 (Firestore가 사용 가능한 경우)
     if (db) {
@@ -42,6 +43,7 @@ export async function loginWithGoogle() {
 
         if (!userSnap.exists()) {
           // 새로운 사용자
+          isNewUser = true;
           await setDoc(userRef, {
             uid: user.uid,
             email: user.email,
@@ -51,11 +53,14 @@ export async function loginWithGoogle() {
             createdAt: serverTimestamp(),
             lastLoginAt: serverTimestamp()
           });
+          console.log('✅ 새 회원 가입:', user.email, `(역할: ${isAdmin ? '관리자' : '일반 사용자'})`);
         } else {
           // 기존 사용자 - 마지막 로그인 시간 업데이트
+          isNewUser = false;
           await setDoc(userRef, {
             lastLoginAt: serverTimestamp()
           }, { merge: true });
+          console.log('✅ 로그인 성공:', user.email, `(역할: ${isAdmin ? '관리자' : '일반 사용자'})`);
         }
       } catch (firestoreError) {
         console.warn('⚠️ Firestore 저장 실패:', firestoreError.message);
@@ -63,9 +68,9 @@ export async function loginWithGoogle() {
       }
     }
 
-    console.log('✅ 로그인 성공:', user.email, `(역할: ${isAdmin ? '관리자' : '일반 사용자'})`);
     return {
       success: true,
+      isNewUser: isNewUser,
       user: {
         uid: user.uid,
         email: user.email,

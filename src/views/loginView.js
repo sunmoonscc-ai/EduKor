@@ -15,8 +15,11 @@ export function renderLoginView() {
         <div class="bg-surface-container-lowest rounded-3xl shadow-lg p-8 border border-surface-container">
           <!-- 소개 -->
           <div class="mb-8 p-4 rounded-2xl bg-secondary/5 border border-secondary/20">
+            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-3">
+              본 프로그램을 사용하기 위해서는 <strong>Google 계정으로 로그인</strong>하면 회원가입이 진행되며 사용 가능합니다.
+            </p>
             <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-              <strong>관리자 계정으로 로그인하면</strong> 교육 콘텐츠 관리, 사용자 관리 등 모든 기능을 이용할 수 있습니다.
+              <strong>관리자 계정</strong>으로는 교육 콘텐츠 관리, 사용자 관리 등 모든 기능을 이용할 수 있습니다.
             </p>
           </div>
 

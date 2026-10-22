@@ -136,7 +136,13 @@ async function initLoginView() {
 
     if (result.success) {
       currentUser = result.user;
-      showToast(`환영합니다, ${result.user.name}!`, 'secondary');
+
+      if (result.isNewUser) {
+        showToast(`${result.user.name}님, 회원가입을 환영합니다! 🎉`, 'secondary');
+      } else {
+        showToast(`환영합니다, ${result.user.name}!`, 'secondary');
+      }
+
       await navigateTo('landing');
     } else {
       loginBtn.classList.remove('hidden');
