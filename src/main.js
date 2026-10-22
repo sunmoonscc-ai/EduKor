@@ -13,6 +13,7 @@ import {
   submitConsultation,
   submitLevelTest
 } from './services/courseService.js';
+import { createInvitation, copyToClipboard } from './services/invitationService.js';
 import { LEVEL_TEST_QUESTIONS, SEED_COURSES } from './services/seedData.js';
 import {
   loginWithGoogle,
@@ -431,6 +432,35 @@ async function initUserManagementView() {
   // 사용자 목록 로드
   await loadUsers();
 
+  // 사용자 초대 버튼
+  const inviteBtn = document.getElementById('btn-invite-user');
+  inviteBtn?.addEventListener('click', async () => {
+    try {
+      inviteBtn.disabled = true;
+      inviteBtn.style.opacity = '0.6';
+
+      // 초대 코드 생성
+      const invitation = await createInvitation();
+
+      // 메시지를 클립보드에 복사
+      const copied = await copyToClipboard(invitation.message);
+
+      if (copied) {
+        showToast('✅ 초대 링크가 클립보드에 복사되었습니다!', 'secondary');
+        console.log('📋 복사된 메시지:', invitation.message);
+      } else {
+        showToast('⚠️ 클립보드 복사에 실패했습니다. 초대 링크를 수동으로 복사해주세요.', 'warning');
+        showInvitationModal(invitation);
+      }
+    } catch (error) {
+      console.error('❌ 초대 코드 생성 오류:', error);
+      showToast('초대 코드 생성에 실패했습니다.', 'error');
+    } finally {
+      inviteBtn.disabled = false;
+      inviteBtn.style.opacity = '1';
+    }
+  });
+
   // 검색 기능
   const searchInput = document.getElementById('user-search-input');
   searchInput?.addEventListener('input', (e) => {
@@ -638,6 +668,87 @@ function showUserDetailModal(user) {
 
 function showUserEditModal(user) {
   showToast('사용자 편집 기능은 준비 중입니다.', 'secondary');
+}
+
+function showInvitationModal(invitation) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container p-6 flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-md text-headline-md text-on-surface font-bold">사용자 초대</h2>
+        <button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
+          <span class="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="p-3 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-2">초대 메시지</p>
+          <p class="font-body-sm text-body-sm text-on-surface font-semibold break-words">${invitation.message}</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-2">초대 링크</p>
+          <p class="font-body-xs text-body-xs text-on-surface break-all font-mono">${invitation.url}</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="flex-1 h-12 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold cursor-pointer hover:bg-secondary/90 transition-colors" id="btn-copy-message">
+          메시지 복사
+        </button>
+        <button class="flex-1 h-12 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold cursor-pointer hover:bg-secondary/90 transition-colors" id="btn-copy-link">
+          링크 복사
+        </button>
+      </div>
+
+      <button class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors" id="btn-close-modal">
+        닫기
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const closeBtn = modal.querySelector('button:nth-of-type(1)');
+  const copyMessageBtn = modal.querySelector('#btn-copy-message');
+  const copyLinkBtn = modal.querySelector('#btn-copy-link');
+  const closeMainBtn = modal.querySelector('#btn-close-modal');
+  const overlay = modal.querySelector('div:first-child');
+
+  const closeModal = () => modal.remove();
+
+  closeBtn.addEventListener('click', closeModal);
+  closeMainBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+
+  copyMessageBtn.addEventListener('click', async () => {
+    const copied = await copyToClipboard(invitation.message);
+    if (copied) {
+      showToast('✅ 메시지가 복사되었습니다!', 'secondary');
+      copyMessageBtn.textContent = '✓ 복사됨';
+      setTimeout(() => {
+        copyMessageBtn.textContent = '메시지 복사';
+      }, 2000);
+    } else {
+      showToast('복사에 실패했습니다.', 'error');
+    }
+  });
+
+  copyLinkBtn.addEventListener('click', async () => {
+    const copied = await copyToClipboard(invitation.url);
+    if (copied) {
+      showToast('✅ 링크가 복사되었습니다!', 'secondary');
+      copyLinkBtn.textContent = '✓ 복사됨';
+      setTimeout(() => {
+        copyLinkBtn.textContent = '링크 복사';
+      }, 2000);
+    } else {
+      showToast('복사에 실패했습니다.', 'error');
+    }
+  });
 }
 
 // ── Level Test Modal ───────────────────────────────────────────────────────────
