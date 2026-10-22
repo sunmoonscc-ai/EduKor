@@ -449,6 +449,24 @@ async function initUserManagementView() {
   // 사용자 목록 로드
   await loadUsers();
 
+  // 필터 탭 숫자 업데이트
+  const adminCount = allUsers.filter(u => u.role === 'admin').length;
+  const userCount = allUsers.filter(u => u.role !== 'admin').length;
+  const totalCount = allUsers.length;
+
+  document.querySelectorAll('.user-filter-btn').forEach(btn => {
+    const filter = btn.dataset.filter;
+    if (filter === 'all') {
+      btn.textContent = `전체 (${totalCount})`;
+    } else if (filter === 'admin') {
+      btn.textContent = `관리자 (${adminCount})`;
+    } else if (filter === 'user') {
+      btn.textContent = `일반 사용자 (${userCount})`;
+    }
+  });
+
+  console.log(`📊 필터 탭 업데이트: 전체=${totalCount}, 관리자=${adminCount}, 일반사용자=${userCount}`);
+
   // 사용자 초대 버튼
   const inviteBtn = document.getElementById('btn-invite-user');
   inviteBtn?.addEventListener('click', async () => {
@@ -588,6 +606,7 @@ function renderUsersList(users) {
     console.log(`📍 renderUsersList 호출: ${users.length}명의 사용자`);
     console.log('🔍 DOM 요소 확인:', {
       containerFound: !!container,
+      containerHTML: container ? container.innerHTML.substring(0, 100) : 'N/A',
       emptyStateFound: !!emptyState
     });
 
@@ -608,40 +627,37 @@ function renderUsersList(users) {
     console.log(`✅ ${users.length}명의 사용자 렌더링 시작`);
     container.classList.remove('hidden');
     emptyState?.classList.add('hidden');
+    console.log('🔧 hidden 클래스 제거 완료');
 
-    const cardsHTML = users.map(user => {
+    const cardsHTML = users.map((user, idx) => {
       try {
+        console.log(`📌 카드 생성 준비 ${idx + 1}: uid=${user.uid}, email=${user.email}, name=${user.name}`);
         const card = renderUserCard(user);
-        console.log(`✅ 카드 생성: ${user.email}`);
+        console.log(`✅ 카드 생성 성공: ${user.email}, 길이: ${card.length}`);
         return card;
       } catch (err) {
         console.error(`❌ 사용자 카드 렌더링 실패 (${user.email}):`, err);
+        console.error(`   에러 스택:`, err.stack);
         return '';
       }
     }).join('');
 
     console.log(`📝 HTML 생성 완료, 길이: ${cardsHTML.length}자`);
-    console.log(`🔧 container 현재 상태:`, {
-      id: container.id,
-      className: container.className,
+    console.log(`📝 생성된 HTML 미리보기:`, cardsHTML.substring(0, 200));
+
+    // 컨테이너 초기화 후 업데이트
+    container.innerHTML = '';
+    console.log(`🗑️ 컨테이너 초기화 완료`);
+
+    container.innerHTML = cardsHTML;
+    console.log(`🎯 DOM 업데이트 완료`);
+    console.log(`🔍 업데이트 후 상태:`, {
       childCount: container.children.length,
-      innerHTML_preview: container.innerHTML.substring(0, 100)
+      containerClass: container.className,
+      firstChild: container.children[0]?.className || 'none'
     });
 
-    // DOM 업데이트 전 강제 리플로우
-    container.innerHTML = '';
-    console.log(`🗑️ 컨테이너 비움`);
-
-    // 약간의 딜레이 후 업데이트
-    setTimeout(() => {
-      container.innerHTML = cardsHTML;
-      console.log(`🎯 DOM 업데이트 완료`);
-      console.log(`🔍 업데이트 후 상태:`, {
-        childCount: container.children.length,
-        firstChild: container.children[0]?.className || 'none'
-      });
-      showToast(`✅ ${users.length}명의 사용자 표시 완료`, 'secondary');
-    }, 0);
+    showToast(`✅ ${users.length}명의 사용자 표시 완료`, 'secondary');
 
     // 사용자 카드 이벤트
     const cards = container.querySelectorAll('.user-card');

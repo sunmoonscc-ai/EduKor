@@ -32,7 +32,7 @@ export function renderUserManagementView() {
             전체
           </button>
           <button class="user-filter-btn px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-medium flex-shrink-0 cursor-pointer hover:bg-surface-container-high transition-colors" data-filter="admin">
-            관리자 (2)
+            관리자
           </button>
           <button class="user-filter-btn px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-medium flex-shrink-0 cursor-pointer hover:bg-surface-container-high transition-colors" data-filter="user">
             일반 사용자
@@ -66,8 +66,8 @@ export function renderUserCard(user) {
   const initials = (user.name || 'User')
     .split(' ')
     .map(word => word[0])
-    .toUpperCase()
     .join('')
+    .toUpperCase()
     .slice(0, 2);
 
   const roleLabel = user.role === 'admin' ? '👑 관리자' : '👤 일반 사용자';
