@@ -5,6 +5,7 @@ import { renderLandingView } from './views/landingView.js';
 import { renderLearnerView } from './views/learnerView.js';
 import { renderEducatorView } from './views/educatorView.js';
 import { renderAdminView } from './views/adminView.js';
+import { renderUserManagementView, renderUserCard } from './views/userManagementView.js';
 import { renderLoginView } from './views/loginView.js';
 import {
   getCourses,
@@ -18,6 +19,13 @@ import {
   logout,
   onAuthChange
 } from './services/authService.js';
+import {
+  db,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from './firebase.js';
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let currentView = 'landing';
@@ -329,7 +337,76 @@ function initEducatorView() {
 }
 
 // ── Admin View Init ────────────────────────────────────────────────────────────
+let currentAdminSubTab = 'dashboard';
+let allUsers = [];
+
 function initAdminView() {
+  // 서브탭 버튼 이벤트
+  document.querySelectorAll('.admin-sub-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subTab = btn.dataset.subTab;
+      switchAdminSubTab(subTab);
+    });
+  });
+
+  // 초기 대시보드 탭 활성화
+  switchAdminSubTab('dashboard');
+}
+
+async function switchAdminSubTab(subTab) {
+  currentAdminSubTab = subTab;
+  const subContent = document.getElementById('admin-sub-content');
+  if (!subContent) return;
+
+  // 서브탭 버튼 스타일 업데이트
+  document.querySelectorAll('.admin-sub-tab').forEach(btn => {
+    if (btn.dataset.subTab === subTab) {
+      btn.classList.add('border-secondary', 'text-secondary');
+      btn.classList.remove('border-transparent', 'text-on-surface-variant');
+    } else {
+      btn.classList.remove('border-secondary', 'text-secondary');
+      btn.classList.add('border-transparent', 'text-on-surface-variant');
+    }
+  });
+
+  // 콘텐츠 변경
+  switch (subTab) {
+    case 'dashboard':
+      initDashboardView();
+      break;
+    case 'users':
+      await initUserManagementView();
+      break;
+    case 'content':
+      subContent.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-20 gap-3">
+          <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_books</span>
+          <p class="font-headline-md text-headline-md text-on-surface font-bold">교육 콘텐츠 관리</p>
+          <p class="font-body-md text-on-surface-variant">준비 중입니다.</p>
+        </div>
+      `;
+      break;
+    case 'analytics':
+      subContent.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-20 gap-3">
+          <span class="material-symbols-outlined text-[48px] text-on-surface-variant">analytics</span>
+          <p class="font-headline-md text-headline-md text-on-surface font-bold">분석</p>
+          <p class="font-body-md text-on-surface-variant">준비 중입니다.</p>
+        </div>
+      `;
+      break;
+  }
+}
+
+function initDashboardView() {
+  // 대시보드 원래 콘텐츠 표시
+  const subContent = document.getElementById('admin-sub-content');
+  const dashboardContent = document.getElementById('dashboard-content');
+  if (dashboardContent) {
+    subContent.innerHTML = dashboardContent.outerHTML;
+  }
+
+  // 대시보드 이벤트 등록
   document.getElementById('btn-approve-visa')?.addEventListener('click', () => {
     showToast('✅ 비자 행정 승인 완료', 'secondary');
   });
@@ -345,6 +422,191 @@ function initAdminView() {
       btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
     });
   });
+}
+
+async function initUserManagementView() {
+  const subContent = document.getElementById('admin-sub-content');
+  subContent.innerHTML = renderUserManagementView();
+
+  // 사용자 목록 로드
+  await loadUsers();
+
+  // 검색 기능
+  const searchInput = document.getElementById('user-search-input');
+  searchInput?.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    filterUsers(query, currentAdminSubTab === 'users' ? 'all' : currentAdminSubTab);
+  });
+
+  // 필터 탭
+  document.querySelectorAll('.user-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.user-filter-btn').forEach(b => {
+        b.classList.remove('bg-secondary', 'text-on-secondary');
+        b.classList.add('bg-surface-container', 'text-on-surface-variant');
+      });
+      btn.classList.add('bg-secondary', 'text-on-secondary');
+      btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+      filterUsers('', filter);
+    });
+  });
+}
+
+async function loadUsers() {
+  try {
+    if (!db) {
+      console.warn('⚠️ Firestore 데이터베이스를 사용할 수 없습니다');
+      allUsers = [];
+      renderUsersList([]);
+      showToast('데이터베이스를 사용할 수 없어 데모 모드로 실행 중입니다.', 'secondary');
+      return;
+    }
+
+    console.log('👥 사용자 목록 로드 시작...');
+    const q = query(collection(db, 'users'));
+    const snapshot = await getDocs(q);
+    console.log(`✅ Firestore에서 ${snapshot.size}명의 사용자를 가져왔습니다`);
+
+    allUsers = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        uid: doc.id,
+        createdAt: data.createdAt || new Date()
+      };
+    });
+
+    // createdAt으로 내림차순 정렬 (클라이언트 측)
+    allUsers.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+      return dateB - dateA;
+    });
+
+    renderUsersList(allUsers);
+  } catch (error) {
+    console.error('❌ 사용자 목록 로드 오류:', error);
+    console.error('에러 상세:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    showToast('사용자 목록을 불러올 수 없습니다.', 'error');
+  }
+}
+
+function filterUsers(searchQuery, roleFilter = 'all') {
+  let filtered = allUsers;
+
+  // 검색 필터
+  if (searchQuery) {
+    filtered = filtered.filter(user =>
+      (user.name?.toLowerCase().includes(searchQuery)) ||
+      (user.email?.toLowerCase().includes(searchQuery))
+    );
+  }
+
+  // 역할 필터
+  if (roleFilter === 'admin') {
+    filtered = filtered.filter(user => user.role === 'admin');
+  } else if (roleFilter === 'user') {
+    filtered = filtered.filter(user => user.role !== 'admin');
+  }
+
+  renderUsersList(filtered);
+}
+
+function renderUsersList(users) {
+  const container = document.getElementById('users-list-container');
+  const emptyState = document.getElementById('users-empty-state');
+
+  if (!container) return;
+
+  if (users.length === 0) {
+    container?.classList.add('hidden');
+    emptyState?.classList.remove('hidden');
+    return;
+  }
+
+  container.classList.remove('hidden');
+  emptyState?.classList.add('hidden');
+
+  container.innerHTML = users.map(user => renderUserCard(user)).join('');
+
+  // 사용자 카드 이벤트
+  container.querySelectorAll('.user-card').forEach(card => {
+    const userId = card.dataset.userId;
+    const user = users.find(u => u.uid === userId);
+
+    card.querySelector('.btn-view-user')?.addEventListener('click', () => {
+      showUserDetailModal(user);
+    });
+
+    card.querySelector('.btn-edit-user')?.addEventListener('click', () => {
+      showUserEditModal(user);
+    });
+  });
+}
+
+function showUserDetailModal(user) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container p-6 flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-md text-headline-md text-on-surface font-bold">사용자 정보</h2>
+        <button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
+          <span class="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="p-3 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">이름</p>
+          <p class="font-body-md text-body-md text-on-surface font-bold">${user.name || '미설정'}</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">이메일</p>
+          <p class="font-body-md text-body-md text-on-surface font-bold break-all">${user.email}</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">역할</p>
+          <span class="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${user.role === 'admin' ? 'bg-secondary text-on-secondary' : 'bg-surface-container text-on-surface'}">
+            ${user.role === 'admin' ? '👑 관리자' : '👤 일반 사용자'}
+          </span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">가입 일자</p>
+          <p class="font-body-md text-body-md text-on-surface font-bold">
+            ${user.createdAt ? new Date(user.createdAt.toDate?.() || user.createdAt).toLocaleDateString('ko-KR') : '미정'}
+          </p>
+        </div>
+      </div>
+
+      <button class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors">
+        닫기
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  const closeBtn = modal.querySelector('button:nth-of-type(1)');
+  const closeMainBtn = modal.querySelector('button:last-child');
+  const overlay = modal.querySelector('div:first-child');
+
+  const closeModal = () => modal.remove();
+  closeBtn.addEventListener('click', closeModal);
+  closeMainBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+}
+
+function showUserEditModal(user) {
+  showToast('사용자 편집 기능은 준비 중입니다.', 'secondary');
 }
 
 // ── Level Test Modal ───────────────────────────────────────────────────────────
