@@ -20,7 +20,7 @@ export function renderLoginView() {
             </p>
           </div>
 
-          <!-- 로그인 버튼 -->
+          <!-- Google 로그인 버튼 -->
           <button id="btn-google-login" class="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-3 shadow-md shadow-primary/20 hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer group">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>

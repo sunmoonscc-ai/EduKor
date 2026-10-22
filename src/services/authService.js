@@ -21,6 +21,9 @@ const ADMIN_EMAILS = [
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('profile');
 googleProvider.addScope('email');
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 /**
  * Google 로그인
@@ -187,3 +190,4 @@ export function onAuthChange(callback) {
     }
   });
 }
+
