@@ -2,10 +2,11 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 사용자 정보 - 자신의 문서는 읽고 쓸 수 있음
+    // 사용자 정보 - 자신의 문서는 읽고 쓸 수 있음, 모든 사용자 목록 읽기 허용
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null; // 다른 사용자 정보도 읽기 허용
+      allow read: if request.auth != null; // 모든 사용자 정보 읽기 허용
+      allow create, update: if request.auth != null && request.auth.uid == userId; // 자신의 문서만 생성/수정
+      allow delete: if request.auth != null && request.auth.uid == userId; // 자신의 문서만 삭제
     }
 
     // 강좌 - 모두 읽을 수 있고, 인증된 사용자가 쓸 수 있음

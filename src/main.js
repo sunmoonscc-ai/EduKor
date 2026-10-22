@@ -137,6 +137,16 @@ async function initLoginView() {
     if (result.success) {
       currentUser = result.user;
 
+      // 운영관리 메뉴 업데이트
+      const adminBtn = document.getElementById('nav-admin');
+      if (adminBtn) {
+        if (result.user.role === 'admin') {
+          adminBtn.classList.remove('hidden');
+        } else {
+          adminBtn.classList.add('hidden');
+        }
+      }
+
       if (result.isNewUser) {
         showToast(`${result.user.name}님, 회원가입을 환영합니다! 🎉`, 'secondary');
       } else {
