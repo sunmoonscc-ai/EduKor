@@ -1126,15 +1126,20 @@ async function initApp() {
   // 프로필 버튼 클릭 이벤트 초기화 (한 번만)
   initProfileButton();
 
+  // 초기에 admin 탭 숨김 (일반 사용자용)
+  const adminBtn = document.getElementById('nav-admin');
+  if (adminBtn) {
+    adminBtn.classList.add('hidden');
+  }
+
   // 인증 상태 감지
   onAuthChange((user) => {
     currentUser = user;
     if (user) {
-      console.log('👤 로그인됨:', user.email);
+      console.log('👤 로그인됨:', user.email, `(역할: ${user.role})`);
       // 프로필 버튼 UI 업데이트
       updateProfileButtonUI();
       // admin 탭 표시/숨김
-      const adminBtn = document.getElementById('nav-admin');
       if (adminBtn) {
         if (user.role === 'admin') {
           adminBtn.classList.remove('hidden');
@@ -1146,6 +1151,10 @@ async function initApp() {
       console.log('🚪 로그아웃됨');
       // 프로필 버튼 UI 업데이트
       updateProfileButtonUI();
+      // 로그아웃 시 admin 탭 숨김
+      if (adminBtn) {
+        adminBtn.classList.add('hidden');
+      }
     }
   });
 

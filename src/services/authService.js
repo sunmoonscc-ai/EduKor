@@ -35,6 +35,12 @@ export async function loginWithGoogle() {
     const isAdmin = ADMIN_EMAILS.includes(user.email);
     let isNewUser = false;
 
+    console.log('🔐 Firebase Auth 성공:', {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName
+    });
+
     // Firestore에 사용자 정보 저장/업데이트 (Firestore가 사용 가능한 경우)
     if (db) {
       try {
@@ -44,7 +50,7 @@ export async function loginWithGoogle() {
         if (!userSnap.exists()) {
           // 새로운 사용자
           isNewUser = true;
-          await setDoc(userRef, {
+          const userData = {
             uid: user.uid,
             email: user.email,
             name: user.displayName || '',
@@ -52,20 +58,35 @@ export async function loginWithGoogle() {
             role: isAdmin ? 'admin' : 'user',
             createdAt: serverTimestamp(),
             lastLoginAt: serverTimestamp()
+          };
+
+          await setDoc(userRef, userData);
+          console.log('✅ 새 회원 가입 완료:', {
+            email: user.email,
+            role: isAdmin ? '관리자' : '일반 사용자',
+            uid: user.uid
           });
-          console.log('✅ 새 회원 가입:', user.email, `(역할: ${isAdmin ? '관리자' : '일반 사용자'})`);
         } else {
           // 기존 사용자 - 마지막 로그인 시간 업데이트
           isNewUser = false;
           await setDoc(userRef, {
             lastLoginAt: serverTimestamp()
           }, { merge: true });
-          console.log('✅ 로그인 성공:', user.email, `(역할: ${isAdmin ? '관리자' : '일반 사용자'})`);
+          console.log('✅ 기존 사용자 로그인:', {
+            email: user.email,
+            role: isAdmin ? '관리자' : '일반 사용자'
+          });
         }
       } catch (firestoreError) {
-        console.warn('⚠️ Firestore 저장 실패:', firestoreError.message);
-        // Firestore 오류는 무시하고 계속 진행
+        console.error('❌ Firestore 저장 오류:', {
+          code: firestoreError.code,
+          message: firestoreError.message,
+          email: user.email
+        });
+        // Firestore 오류는 무시하고 계속 진행 - isNewUser는 그대로 유지
       }
+    } else {
+      console.warn('⚠️ Firestore DB 미초기화 - 로컬 모드 실행');
     }
 
     return {
@@ -80,7 +101,10 @@ export async function loginWithGoogle() {
       }
     };
   } catch (error) {
-    console.error('❌ 로그인 오류:', error.message);
+    console.error('❌ 로그인 오류:', {
+      code: error.code,
+      message: error.message
+    });
     return {
       success: false,
       error: error.message
