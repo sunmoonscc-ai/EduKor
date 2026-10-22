@@ -22,6 +22,7 @@ import {
 } from './services/authService.js';
 import {
   db,
+  auth,
   collection,
   getDocs,
   query,
