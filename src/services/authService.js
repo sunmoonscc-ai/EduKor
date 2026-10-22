@@ -45,9 +45,23 @@ export async function loginWithGoogle() {
     if (db) {
       try {
         const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
 
-        if (!userSnap.exists()) {
+        // 기존 사용자 확인
+        let userExists = false;
+        try {
+          const userSnap = await getDoc(userRef);
+          userExists = userSnap.exists();
+        } catch (getError) {
+          console.error('❌ Firestore 조회 오류:', {
+            code: getError.code,
+            message: getError.message,
+            email: user.email
+          });
+          // 조회 실패 시 새로운 사용자로 간주
+          userExists = false;
+        }
+
+        if (!userExists) {
           // 새로운 사용자
           isNewUser = true;
           const userData = {
@@ -60,33 +74,51 @@ export async function loginWithGoogle() {
             lastLoginAt: serverTimestamp()
           };
 
-          await setDoc(userRef, userData);
-          console.log('✅ 새 회원 가입 완료:', {
-            email: user.email,
-            role: isAdmin ? '관리자' : '일반 사용자',
-            uid: user.uid
-          });
+          try {
+            await setDoc(userRef, userData);
+            console.log('✅ 새 회원 가입 완료:', {
+              email: user.email,
+              role: isAdmin ? '관리자' : '일반 사용자',
+              uid: user.uid
+            });
+          } catch (setError) {
+            console.error('❌ Firestore 저장 오류 (새 회원):', {
+              code: setError.code,
+              message: setError.message,
+              email: user.email
+            });
+          }
         } else {
           // 기존 사용자 - 마지막 로그인 시간 업데이트
           isNewUser = false;
-          await setDoc(userRef, {
-            lastLoginAt: serverTimestamp()
-          }, { merge: true });
-          console.log('✅ 기존 사용자 로그인:', {
-            email: user.email,
-            role: isAdmin ? '관리자' : '일반 사용자'
-          });
+          try {
+            await setDoc(userRef, {
+              lastLoginAt: serverTimestamp()
+            }, { merge: true });
+            console.log('✅ 기존 사용자 로그인:', {
+              email: user.email,
+              role: isAdmin ? '관리자' : '일반 사용자'
+            });
+          } catch (updateError) {
+            console.error('❌ Firestore 업데이트 오류:', {
+              code: updateError.code,
+              message: updateError.message,
+              email: user.email
+            });
+          }
         }
       } catch (firestoreError) {
-        console.error('❌ Firestore 저장 오류:', {
+        console.error('❌ Firestore 일반 오류:', {
           code: firestoreError.code,
           message: firestoreError.message,
           email: user.email
         });
-        // Firestore 오류는 무시하고 계속 진행 - isNewUser는 그대로 유지
       }
     } else {
-      console.warn('⚠️ Firestore DB 미초기화 - 로컬 모드 실행');
+      console.warn('⚠️ Firestore DB 미초기화:', {
+        isFirebaseConfigured: db !== null,
+        email: user.email
+      });
     }
 
     return {
