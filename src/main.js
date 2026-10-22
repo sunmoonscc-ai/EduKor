@@ -621,9 +621,27 @@ function renderUsersList(users) {
     }).join('');
 
     console.log(`📝 HTML 생성 완료, 길이: ${cardsHTML.length}자`);
-    container.innerHTML = cardsHTML;
-    console.log(`🎯 DOM 업데이트 완료`);
-    showToast(`✅ ${users.length}명의 사용자 표시 완료`, 'secondary');
+    console.log(`🔧 container 현재 상태:`, {
+      id: container.id,
+      className: container.className,
+      childCount: container.children.length,
+      innerHTML_preview: container.innerHTML.substring(0, 100)
+    });
+
+    // DOM 업데이트 전 강제 리플로우
+    container.innerHTML = '';
+    console.log(`🗑️ 컨테이너 비움`);
+
+    // 약간의 딜레이 후 업데이트
+    setTimeout(() => {
+      container.innerHTML = cardsHTML;
+      console.log(`🎯 DOM 업데이트 완료`);
+      console.log(`🔍 업데이트 후 상태:`, {
+        childCount: container.children.length,
+        firstChild: container.children[0]?.className || 'none'
+      });
+      showToast(`✅ ${users.length}명의 사용자 표시 완료`, 'secondary');
+    }, 0);
 
     // 사용자 카드 이벤트
     const cards = container.querySelectorAll('.user-card');
