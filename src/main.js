@@ -505,6 +505,8 @@ async function initUserManagementView() {
 
 async function loadUsers() {
   try {
+    console.log('🔍 loadUsers 시작. db:', db ? '있음' : '없음');
+
     if (!db) {
       console.warn('⚠️ Firestore 데이터베이스를 사용할 수 없습니다');
       allUsers = [];
@@ -513,19 +515,25 @@ async function loadUsers() {
       return;
     }
 
-    console.log('👥 사용자 목록 로드 시작...');
+    console.log('👥 사용자 목록 로드 시작... auth:', auth ? '있음' : '없음');
     const q = query(collection(db, 'users'));
+    console.log('📝 쿼리 객체 생성 완료, getDocs 호출 시작...');
+
     const snapshot = await getDocs(q);
     console.log(`✅ Firestore에서 ${snapshot.size}명의 사용자를 가져왔습니다`);
+    showToast(`✅ 사용자 ${snapshot.size}명 로드 완료`, 'secondary');
 
     allUsers = snapshot.docs.map(doc => {
       const data = doc.data();
+      console.log(`📌 사용자 로드: ${data.email} (${data.role})`);
       return {
         ...data,
         uid: doc.id,
         createdAt: data.createdAt || new Date()
       };
     });
+
+    console.log(`📊 총 ${allUsers.length}명 처리 완료`);
 
     // createdAt으로 내림차순 정렬 (클라이언트 측)
     allUsers.sort((a, b) => {
@@ -534,17 +542,19 @@ async function loadUsers() {
       return dateB - dateA;
     });
 
+    console.log(`🎨 renderUsersList 호출: ${allUsers.length}명`);
     renderUsersList(allUsers);
   } catch (error) {
     console.error('❌ 사용자 목록 로드 오류:', error);
     console.error('에러 상세:', {
       message: error.message,
       code: error.code,
+      name: error.name,
       stack: error.stack
     });
     allUsers = [];
     renderUsersList([]);
-    showToast('사용자 목록을 불러올 수 없습니다.', 'error');
+    showToast(`❌ 오류: ${error.message}`, 'error');
   }
 }
 
