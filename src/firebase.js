@@ -1,16 +1,24 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  getDocs, 
-  addDoc, 
-  doc, 
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  doc,
   setDoc,
-  query, 
-  where, 
-  orderBy, 
-  serverTimestamp 
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  getDoc
 } from 'firebase/firestore';
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth';
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -31,11 +39,13 @@ export const isFirebaseConfigured = Boolean(
 
 let app = null;
 let db = null;
+let auth = null;
 
 if (isFirebaseConfigured) {
   try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
     db = getFirestore(app);
+    auth = getAuth(app);
     console.log('🔥 Firebase initialized successfully with project:', firebaseConfig.projectId);
   } catch (err) {
     console.warn('⚠️ Firebase init warning:', err);
@@ -44,16 +54,22 @@ if (isFirebaseConfigured) {
   console.info('ℹ️ Firebase is running in local demo mode. Add VITE_FIREBASE_* keys to .env to connect live Firestore.');
 }
 
-export { 
-  app, 
-  db, 
-  collection, 
-  getDocs, 
-  addDoc, 
-  doc, 
+export {
+  app,
+  db,
+  auth,
+  collection,
+  getDocs,
+  addDoc,
+  doc,
   setDoc,
-  query, 
-  where, 
-  orderBy, 
-  serverTimestamp 
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  getDoc,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged
 };

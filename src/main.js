@@ -5,6 +5,7 @@ import { renderLandingView } from './views/landingView.js';
 import { renderLearnerView } from './views/learnerView.js';
 import { renderEducatorView } from './views/educatorView.js';
 import { renderAdminView } from './views/adminView.js';
+import { renderLoginView } from './views/loginView.js';
 import {
   getCourses,
   getReviews,
@@ -12,12 +13,18 @@ import {
   submitLevelTest
 } from './services/courseService.js';
 import { LEVEL_TEST_QUESTIONS, SEED_COURSES } from './services/seedData.js';
+import {
+  loginWithGoogle,
+  logout,
+  onAuthChange
+} from './services/authService.js';
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let currentView = 'landing';
 let currentCategory = 'all';
 let levelTestAnswers = [];
 let levelTestStep = 0;
+let currentUser = null;
 
 // ── DOM refs ───────────────────────────────────────────────────────────────────
 const viewRoot = document.getElementById('view-root');
@@ -25,8 +32,21 @@ const navBtns = document.querySelectorAll('.nav-btn');
 
 // ── Router ─────────────────────────────────────────────────────────────────────
 async function navigateTo(view) {
+  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+  if (!currentUser && view !== 'login') {
+    view = 'login';
+  }
+
+  // admin 권한이 없으면 admin 페이지 접근 불가
+  if (view === 'admin' && (!currentUser || currentUser.role !== 'admin')) {
+    showToast('관리자만 접근 가능합니다.', 'error');
+    view = 'landing';
+  }
+
   currentView = view;
-  updateNavActive(view);
+  if (view !== 'login') {
+    updateNavActive(view);
+  }
 
   // Animate out
   viewRoot.style.opacity = '0';
@@ -36,6 +56,10 @@ async function navigateTo(view) {
 
   // Render view
   switch (view) {
+    case 'login':
+      viewRoot.innerHTML = renderLoginView();
+      initLoginView();
+      break;
     case 'landing':
       viewRoot.innerHTML = renderLandingView();
       await initLandingView();
@@ -83,6 +107,33 @@ function updateNavActive(view) {
       label.classList.remove('text-secondary');
       label.classList.add('text-on-surface-variant');
       btn.classList.remove('bg-secondary-fixed/30');
+    }
+  });
+}
+
+// ── Login View Init ────────────────────────────────────────────────────────────
+async function initLoginView() {
+  const loginBtn = document.getElementById('btn-google-login');
+  const loadingDiv = document.getElementById('login-loading');
+  const errorDiv = document.getElementById('login-error');
+  const errorMsg = document.getElementById('error-message');
+
+  loginBtn.addEventListener('click', async () => {
+    loginBtn.classList.add('hidden');
+    loadingDiv.classList.remove('hidden');
+    errorDiv.classList.add('hidden');
+
+    const result = await loginWithGoogle();
+
+    if (result.success) {
+      currentUser = result.user;
+      showToast(`환영합니다, ${result.user.name}!`, 'secondary');
+      await navigateTo('landing');
+    } else {
+      loginBtn.classList.remove('hidden');
+      loadingDiv.classList.add('hidden');
+      errorDiv.classList.remove('hidden');
+      errorMsg.textContent = result.error || '로그인에 실패했습니다.';
     }
   });
 }
@@ -467,10 +518,240 @@ function showToast(message, type = 'secondary') {
   }, 3500);
 }
 
-// ── Boot ───────────────────────────────────────────────────────────────────────
-navBtns.forEach(btn => {
-  btn.addEventListener('click', () => navigateTo(btn.dataset.view));
-});
+// ── User Profile Menu ──────────────────────────────────────────────────────────
+function initProfileButton() {
+  const profileBtn = document.getElementById('profile-btn');
+  if (!profileBtn) return;
 
-// Init on landing view
-navigateTo('landing');
+  // 프로필 버튼 클릭 이벤트 - 한 번만 등록
+  profileBtn.addEventListener('click', () => {
+    if (currentUser) {
+      showUserMenu();
+    } else {
+      navigateTo('login');
+    }
+  });
+}
+
+function updateProfileButtonUI() {
+  const profileBtn = document.getElementById('profile-btn');
+  if (!profileBtn) return;
+
+  if (currentUser) {
+    // 로그인된 경우 - 이니셜 표시
+    const initials = (currentUser.name || 'User')
+      .split(' ')
+      .map(word => word[0])
+      .toUpperCase()
+      .join('')
+      .slice(0, 2);
+
+    profileBtn.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-[0_1px_4px_rgba(15,23,42,0.12)]">
+        <span class="text-xs font-bold text-on-primary">${initials}</span>
+      </div>
+    `;
+  } else {
+    // 로그인 안 된 경우 - 기본 person 아이콘
+    profileBtn.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shadow-[0_1px_4px_rgba(15,23,42,0.12)]">
+        <span class="material-symbols-outlined text-[18px] text-on-primary-container">person</span>
+      </div>
+    `;
+  }
+}
+
+function showUserMenu() {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-[200] flex items-start justify-end';
+  modal.id = 'user-menu-modal';
+  modal.innerHTML = `
+    <div class="absolute inset-0" id="menu-overlay"></div>
+    <div class="relative w-72 mt-20 mr-4 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container flex flex-col gap-3 p-4">
+      <!-- 사용자 정보 -->
+      <div class="flex items-center gap-3 pb-3 border-b border-surface-container">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center flex-shrink-0">
+          <span class="text-sm font-bold text-on-primary">
+            ${(currentUser?.name || 'User')
+              .split(' ')
+              .map(word => word[0])
+              .join('')
+              .toUpperCase()
+              .slice(0, 2)}
+          </span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-label-md text-label-md text-on-surface font-bold truncate">${currentUser?.name || '사용자'}</p>
+          <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${currentUser?.email}</p>
+          <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-on-secondary">
+            ${currentUser?.role === 'admin' ? '관리자' : '일반 사용자'}
+          </span>
+        </div>
+      </div>
+
+      <!-- 메뉴 버튼들 -->
+      <button id="btn-edit-profile" class="w-full px-4 py-2.5 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 hover:bg-surface-container-high transition-colors cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">person</span>
+        <span>프로필 정보</span>
+      </button>
+
+      <button id="btn-logout" class="w-full px-4 py-2.5 rounded-xl bg-error/10 text-error font-label-md text-label-md font-bold flex items-center gap-2 hover:bg-error/20 transition-colors cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        <span>로그아웃</span>
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 오버레이 클릭 → 메뉴 닫기
+  const overlay = document.getElementById('menu-overlay');
+  overlay.addEventListener('click', () => {
+    modal.remove();
+  });
+
+  // 프로필 정보 버튼
+  const editBtn = document.getElementById('btn-edit-profile');
+  editBtn.addEventListener('click', () => {
+    modal.remove();
+    showProfileModal();
+  });
+
+  // 로그아웃 버튼
+  const logoutBtn = document.getElementById('btn-logout');
+  logoutBtn.addEventListener('click', async () => {
+    modal.remove();
+    await handleLogout();
+  });
+}
+
+function showProfileModal() {
+  // 로그인하지 않은 경우 프로필 모달을 열지 않음
+  if (!currentUser) {
+    return;
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4';
+  modal.id = 'profile-modal';
+  modal.innerHTML = `
+    <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm" id="profile-overlay"></div>
+    <div class="relative w-full max-w-md bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container p-6 flex flex-col gap-4">
+      <!-- 헤더 -->
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-md text-headline-md text-on-surface font-bold">프로필 정보</h2>
+        <button id="btn-close-profile" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high">
+          <span class="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
+        </button>
+      </div>
+
+      <!-- 사용자 정보 표시 -->
+      <div class="space-y-4">
+        <!-- 아바타 -->
+        <div class="flex justify-center">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+            <span class="text-2xl font-bold text-on-primary">
+              ${(currentUser?.name || 'User')
+                .split(' ')
+                .map(word => word[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2)}
+            </span>
+          </div>
+        </div>
+
+        <!-- 정보 -->
+        <div class="space-y-3">
+          <div class="p-3 rounded-xl bg-surface-container-low">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">이름</p>
+            <p class="font-body-md text-body-md text-on-surface font-bold">${currentUser?.name || '미설정'}</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-surface-container-low">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">이메일</p>
+            <p class="font-body-md text-body-md text-on-surface font-bold break-all">${currentUser?.email}</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-surface-container-low">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">역할</p>
+            <div class="flex items-center gap-2">
+              <span class="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-secondary text-on-secondary">
+                ${currentUser?.role === 'admin' ? '👑 관리자' : '👤 일반 사용자'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 닫기 버튼 -->
+      <button class="w-full h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors">
+        닫기
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 닫기 이벤트
+  const overlay = document.getElementById('profile-overlay');
+  const closeBtn = document.getElementById('btn-close-profile');
+  const closeMainBtn = modal.querySelector('button:last-child');
+
+  const closeModal = () => modal.remove();
+
+  overlay.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal);
+  closeMainBtn.addEventListener('click', closeModal);
+}
+
+async function handleLogout() {
+  const result = await logout();
+  if (result.success) {
+    currentUser = null;
+    showToast('로그아웃되었습니다.', 'secondary');
+    await navigateTo('login');
+  }
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────────
+async function initApp() {
+  // 프로필 버튼 클릭 이벤트 초기화 (한 번만)
+  initProfileButton();
+
+  // 인증 상태 감지
+  onAuthChange((user) => {
+    currentUser = user;
+    if (user) {
+      console.log('👤 로그인됨:', user.email);
+      // 프로필 버튼 UI 업데이트
+      updateProfileButtonUI();
+      // admin 탭 표시/숨김
+      const adminBtn = document.getElementById('nav-admin');
+      if (adminBtn) {
+        if (user.role === 'admin') {
+          adminBtn.classList.remove('hidden');
+        } else {
+          adminBtn.classList.add('hidden');
+        }
+      }
+    } else {
+      console.log('🚪 로그아웃됨');
+      // 프로필 버튼 UI 업데이트
+      updateProfileButtonUI();
+    }
+  });
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => navigateTo(btn.dataset.view));
+  });
+
+  // 로그인되지 않은 경우 로그인 페이지로 이동
+  if (!currentUser) {
+    await navigateTo('login');
+  } else {
+    await navigateTo('landing');
+  }
+}
+
+initApp();
