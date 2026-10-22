@@ -2,6 +2,42 @@ export function renderAdminView() {
   return `
     <div class="flex flex-col w-full pb-10">
 
+      <!-- Admin Sub Navigation Tabs -->
+      <div class="sticky top-16 z-40 bg-surface/95 backdrop-blur-md border-b border-surface-container px-gutter py-0">
+        <div class="flex items-center gap-1 overflow-x-auto pb-0 no-scrollbar">
+          <button class="admin-sub-tab px-4 py-3 rounded-t-xl border-b-2 border-transparent text-on-surface-variant font-label-md text-label-md font-semibold cursor-pointer transition-all hover:text-on-surface active:scale-[0.98]" data-sub-tab="dashboard">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">dashboard</span>
+              <span>대시보드</span>
+            </span>
+          </button>
+          <button class="admin-sub-tab px-4 py-3 rounded-t-xl border-b-2 border-transparent text-on-surface-variant font-label-md text-label-md font-semibold cursor-pointer transition-all hover:text-on-surface active:scale-[0.98]" data-sub-tab="users">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">people</span>
+              <span>사용자 관리</span>
+            </span>
+          </button>
+          <button class="admin-sub-tab px-4 py-3 rounded-t-xl border-b-2 border-transparent text-on-surface-variant font-label-md text-label-md font-semibold cursor-pointer transition-all hover:text-on-surface active:scale-[0.98]" data-sub-tab="content">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">library_books</span>
+              <span>교육 콘텐츠</span>
+            </span>
+          </button>
+          <button class="admin-sub-tab px-4 py-3 rounded-t-xl border-b-2 border-transparent text-on-surface-variant font-label-md text-label-md font-semibold cursor-pointer transition-all hover:text-on-surface active:scale-[0.98]" data-sub-tab="analytics">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">analytics</span>
+              <span>분석</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sub Tab Content -->
+      <div id="admin-sub-content" class="flex flex-col w-full">
+
+      <!-- Dashboard Content (Sub Tab) -->
+      <div id="dashboard-content" class="flex flex-col w-full pb-10">
+
       <!-- Admin Hero Dashboard Banner -->
       <div class="px-gutter pt-3 pb-6 flex flex-col gap-space-lg">
         <div class="bg-primary-container text-on-primary rounded-2xl p-space-lg shadow-md relative overflow-hidden">
@@ -230,6 +266,9 @@ export function renderAdminView() {
             `).join('')}
           </div>
         </div>
+
+      </div>
+      </div>
 
       </div>
     </div>
