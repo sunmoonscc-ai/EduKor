@@ -439,15 +439,19 @@ async function initUserManagementView() {
   });
 
   // 필터 탭
-  document.querySelectorAll('.user-filter-btn').forEach(btn => {
+  const filterBtns = document.querySelectorAll('.user-filter-btn');
+  console.log(`🔘 필터 탭 ${filterBtns.length}개 찾음`);
+  filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
+      console.log(`📊 필터 클릭: ${filter}`);
       document.querySelectorAll('.user-filter-btn').forEach(b => {
         b.classList.remove('bg-secondary', 'text-on-secondary');
         b.classList.add('bg-surface-container', 'text-on-surface-variant');
       });
       btn.classList.add('bg-secondary', 'text-on-secondary');
       btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+      console.log(`📋 filterUsers 호출: 검색='', 필터='${filter}', allUsers=${allUsers.length}명`);
       filterUsers('', filter);
     });
   });
@@ -492,6 +496,8 @@ async function loadUsers() {
       code: error.code,
       stack: error.stack
     });
+    allUsers = [];
+    renderUsersList([]);
     showToast('사용자 목록을 불러올 수 없습니다.', 'error');
   }
 }
