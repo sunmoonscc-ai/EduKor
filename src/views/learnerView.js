@@ -100,27 +100,25 @@ export function renderLessonDetailModal(lesson, parts = []) {
           </button>
 
           <!-- 아코디언 바디 -->
-          <div class="lesson-part-accordion-body hidden border-t border-surface-container overflow-y-auto max-h-[500px]">
+          <div class="lesson-part-accordion-body hidden border-t border-surface-container">
             <div class="flex flex-col gap-3 sm:gap-4 p-4 sm:p-6">
               <!-- 영상 -->
               ${part.youtubeId ? `
-                ${part.isShorts ? `
-                  <!-- YouTube Shorts: 전체화면으로 표시 -->
-                  <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full flex justify-center">
-                    <div style="position: relative; width: 100%; max-width: 450px; padding-bottom: 177.78%;">
+                <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
+                  ${part.isShorts === true ? `
+                    <!-- YouTube Shorts: 9:16 비율로 전체화면 표시 -->
+                    <div style="position: relative; width: 100%; max-width: 100%; padding-bottom: 177.78%; margin: 0 auto;">
                       <iframe
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                        src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1"
+                        src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                         class="rounded-xl sm:rounded-2xl">
                       </iframe>
                     </div>
-                  </div>
-                ` : `
-                  <!-- 일반 YouTube: 16:9 비율 -->
-                  <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full flex justify-center">
+                  ` : `
+                    <!-- 일반 YouTube: 16:9 비율 -->
                     <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
                       <iframe
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
@@ -131,8 +129,8 @@ export function renderLessonDetailModal(lesson, parts = []) {
                         class="rounded-xl sm:rounded-2xl">
                       </iframe>
                     </div>
-                  </div>
-                `}
+                  `}
+                </div>
               ` : `
                 <div class="bg-surface-container rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center">
                   <span class="material-symbols-outlined text-[40px] text-on-surface-variant">video_library</span>
