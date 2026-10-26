@@ -386,9 +386,166 @@ function renderReviews(reviews) {
 }
 
 // ── Learner View Init ──────────────────────────────────────────────────────────
-function initLearnerView() {
-  // Nothing async needed for now — data is static
+async function initLearnerView() {
   console.log('✅ Learner view initialized');
+
+  // 강좌 목록 로드
+  await loadAndRenderCourses();
+}
+
+async function loadAndRenderCourses() {
+  try {
+    const courses = await getAllTeachingCourses();
+    const coursesList = document.getElementById('courses-list');
+    const coursesCount = document.getElementById('courses-count');
+
+    if (!coursesList) return;
+
+    if (courses.length === 0) {
+      coursesList.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-16 gap-3">
+          <span class="material-symbols-outlined text-[40px] text-on-surface-variant">library_books</span>
+          <p class="font-body-md text-on-surface-variant">준비된 강좌가 없습니다</p>
+        </div>
+      `;
+      coursesCount.textContent = '0개';
+      return;
+    }
+
+    // 강좌 카드 렌더링
+    const { renderCourseCard } = await import('./views/learnerView.js');
+    coursesList.innerHTML = courses.map(course => renderCourseCard(course)).join('');
+    coursesCount.textContent = `${courses.length}개`;
+
+    // 강좌 카드 클릭 이벤트
+    coursesList.querySelectorAll('.course-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const courseId = card.dataset.courseId;
+        const course = courses.find(c => c.id === courseId);
+        showCourseDetailModal(course);
+      });
+    });
+  } catch (error) {
+    console.error('❌ 강좌 로드 실패:', error);
+    showToast('강좌를 불러올 수 없습니다.', 'error');
+  }
+}
+
+function showCourseDetailModal(course) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 z-[100] flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm" id="modal-overlay"></div>
+    <div class="relative w-full max-w-2xl bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container p-6 flex flex-col gap-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${course.title}</h2>
+        <button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high" id="btn-close-modal">
+          <span class="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
+        </button>
+      </div>
+
+      <!-- 강좌 정보 -->
+      <div class="flex flex-col gap-3">
+        <div class="p-4 rounded-xl bg-surface-container-low">
+          <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">강좌 설명</p>
+          <p class="font-body-md text-body-md text-on-surface">${course.description}</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="p-3 rounded-xl bg-surface-container-low">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">대상 수준</p>
+            <p class="font-headline-md text-headline-md text-on-surface font-bold">${course.level || '미정'}</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-surface-container-low">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">총 차시</p>
+            <p class="font-headline-md text-headline-md text-on-surface font-bold">${course.totalLessons || 0}</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-surface-container-low">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-1">강사</p>
+            <p class="font-headline-md text-headline-md text-on-surface font-bold truncate">${course.instructor || '미정'}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 차시 목록 -->
+      <div id="lessons-container" class="flex flex-col gap-3 mt-4">
+        <h3 class="font-label-md text-label-md text-on-surface font-bold">차시 목록</h3>
+        <div id="lessons-list" class="flex items-center justify-center py-8 text-on-surface-variant">
+          <span class="material-symbols-outlined text-[24px] mr-2">hourglass_empty</span>
+          <span>차시 목록 로드 중...</span>
+        </div>
+      </div>
+
+      <!-- 버튼 -->
+      <button class="w-full h-12 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold cursor-pointer hover:bg-secondary/90 transition-colors mt-4" id="btn-start-course">
+        강의 시작
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 모달 닫기
+  const closeModal = () => modal.remove();
+  document.getElementById('modal-overlay').addEventListener('click', closeModal);
+  document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+
+  // 차시 목록 로드
+  loadLessons(course.id);
+
+  // 강의 시작 버튼
+  document.getElementById('btn-start-course').addEventListener('click', () => {
+    showToast('강의 플레이어가 준비 중입니다.', 'secondary');
+    closeModal();
+  });
+}
+
+async function loadLessons(courseId) {
+  try {
+    const lessons = await getTeachingLessonsByCourseId(courseId);
+    const lessonsList = document.getElementById('lessons-list');
+
+    if (!lessonsList) return;
+
+    if (lessons.length === 0) {
+      lessonsList.innerHTML = `
+        <div class="text-center py-4">
+          <p class="font-body-md text-on-surface-variant">등록된 차시가 없습니다</p>
+        </div>
+      `;
+      return;
+    }
+
+    lessonsList.innerHTML = lessons.map(lesson => `
+      <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container cursor-pointer hover:bg-surface-container transition-colors" data-lesson-id="${lesson.id}">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="font-label-md text-label-md text-secondary font-bold">${lesson.lessonNumber}차시</p>
+            <p class="font-body-md text-body-md text-on-surface mt-1">${lesson.title}</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">학습 글자: ${lesson.learnLetters || '미정'}</p>
+            ${lesson.goal ? `<p class="font-label-sm text-label-sm text-on-surface-variant mt-2">목표: ${lesson.goal}</p>` : ''}
+          </div>
+          <span class="material-symbols-outlined text-[20px] text-on-surface-variant flex-shrink-0">arrow_forward</span>
+        </div>
+      </div>
+    `).join('');
+
+    // 차시 클릭 이벤트
+    lessonsList.querySelectorAll('[data-lesson-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        showLessonDetail(lessons.find(l => l.id === el.dataset.lessonId));
+      });
+    });
+  } catch (error) {
+    console.error('❌ 차시 로드 실패:', error);
+  }
+}
+
+function showLessonDetail(lesson) {
+  showToast(`${lesson.lessonNumber}차시: ${lesson.title}`, 'secondary');
+  // 향후: 상세한 차시 학습 페이지로 이동
 }
 
 // ── Educator View Init ─────────────────────────────────────────────────────────

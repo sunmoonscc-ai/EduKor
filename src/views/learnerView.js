@@ -6,176 +6,76 @@ export function renderLearnerView() {
         <div class="flex items-center justify-between">
           <div>
             <div class="flex items-center gap-1.5">
-              <h1 class="font-hangul-title text-hangul-title text-on-surface font-bold">안녕하세요, 마이클 님!</h1>
-              <span class="text-[20px] animate-bounce">👋</span>
+              <h1 class="font-hangul-title text-hangul-title text-on-surface font-bold">안녕하세요! 👋</h1>
             </div>
             <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-              오늘의 목표 달성까지 <span class="font-semibold text-secondary">15분</span> 남았습니다.
+              준비된 강좌를 선택해서 학습을 시작하세요.
             </p>
           </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed shadow-sm">
-            <span class="material-symbols-outlined text-[18px] text-on-tertiary-container" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
-            <span class="font-label-sm text-label-sm font-bold">14일 연속</span>
-          </div>
         </div>
 
-        <!-- Weekly Streak & Goal Tracker Card -->
-        <div class="mt-space-md p-space-md rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col gap-3 border border-surface-container">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-container">
-                <span class="material-symbols-outlined text-[20px]">bolt</span>
-              </div>
-              <div>
-                <div class="font-label-md text-label-md text-on-surface font-bold">이번 주 완주율 85%</div>
-                <div class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">매일 30분 집중 학습 챌린지</div>
-              </div>
-            </div>
-            <span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-high text-secondary font-bold">Lv. 3 도전자</span>
-          </div>
-          
-          <!-- 7-Day Dot Progress Indicator -->
-          <div class="grid grid-cols-7 gap-1.5 pt-1">
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-on-surface-variant text-[11px]">월</span>
-              <div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-xs">
-                <span class="material-symbols-outlined text-[16px]">check</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-on-surface-variant text-[11px]">화</span>
-              <div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-xs">
-                <span class="material-symbols-outlined text-[16px]">check</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-on-surface-variant text-[11px]">수</span>
-              <div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-xs">
-                <span class="material-symbols-outlined text-[16px]">check</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-on-surface-variant text-[11px]">목</span>
-              <div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-xs">
-                <span class="material-symbols-outlined text-[16px]">check</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-on-surface-variant text-[11px]">금</span>
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center ring-2 ring-secondary-container/40">
-                <span class="material-symbols-outlined text-[16px]">check</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-secondary font-bold text-[11px]">오늘</span>
-              <div class="w-8 h-8 rounded-full bg-surface-container-high text-secondary flex items-center justify-center font-bold font-label-md text-label-md shadow-inner">
-                토
-              </div>
-            </div>
-            <div class="flex flex-col items-center gap-1">
-              <span class="font-label-sm text-label-sm text-outline-variant text-[11px]">일</span>
-              <div class="w-8 h-8 rounded-full bg-surface-container-low text-outline-variant flex items-center justify-center text-[12px]">
-                7
-              </div>
-            </div>
+      </section>
+
+      <!-- 강좌 목록 -->
+      <section class="px-gutter pt-space-lg pb-space-lg">
+        <div class="flex items-center justify-between mb-space-md">
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">준비된 강좌</h3>
+          <span class="font-label-sm text-label-sm text-on-surface-variant" id="courses-count">0개</span>
+        </div>
+        <div id="courses-list" class="flex flex-col gap-3">
+          <!-- 로딩 상태 -->
+          <div class="flex flex-col items-center justify-center py-16 gap-3">
+            <span class="material-symbols-outlined text-[40px] text-on-surface-variant animate-pulse">hourglass_empty</span>
+            <span class="font-body-md text-on-surface-variant">강좌 목록 로드 중...</span>
           </div>
         </div>
       </section>
+    </div>
+  `;
+}
 
-      <!-- Resume Learning Hero Card (Current Course) -->
-      <section class="px-gutter pt-space-md">
-        <div class="relative overflow-hidden rounded-2xl bg-primary-container text-on-primary p-space-md shadow-md flex flex-col justify-between">
-          <div class="relative z-10">
-            <div class="flex items-center justify-between gap-2">
-              <span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider font-bold">
-                중급 회화 · 이어듣기
-              </span>
-              <div class="flex items-center gap-1 text-on-primary-container font-label-sm text-label-sm">
-                <span class="material-symbols-outlined text-[16px]">schedule</span>
-                <span>13분 남음</span>
-              </div>
-            </div>
-            <h2 class="font-headline-lg-mobile text-headline-lg-mobile mt-3 text-on-primary font-bold leading-tight">
-              Ep 14. 한국 식당에서의 자연스러운 주문과 요청
-            </h2>
-            <!-- Grammar Highlight Pill -->
-            <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/40 backdrop-blur-sm text-primary-fixed">
-              <span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">lightbulb</span>
-              <span class="font-body-sm text-body-sm text-[12px]">오늘의 핵심 문법: <strong class="text-on-primary font-medium">-아/어 주시겠어요?</strong></span>
-            </div>
-            <!-- Progress Bar -->
-            <div class="mt-4 flex flex-col gap-1.5">
-              <div class="flex justify-between items-center text-on-primary-container font-label-sm text-label-sm">
-                <span>강의 진행률</span>
-                <span class="font-bold text-on-primary">65% 완료</span>
-              </div>
-              <div class="w-full h-2 rounded-full bg-primary overflow-hidden">
-                <div class="h-full rounded-full bg-secondary-container w-[65%] transition-all duration-500"></div>
-              </div>
-            </div>
-          </div>
-          <!-- Action Button -->
-          <div class="relative z-10 mt-5 pt-1">
-            <button class="w-full h-[52px] rounded-xl bg-secondary hover:bg-secondary/95 active:scale-[0.98] transition-transform text-on-secondary font-label-md text-label-md font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer">
-              <span>이어서 학습하기</span>
-              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-            </button>
-          </div>
-          <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-secondary-container/20 blur-3xl pointer-events-none"></div>
-          <div class="absolute right-0 bottom-0 w-32 h-32 rounded-full bg-on-tertiary-container/10 blur-2xl pointer-events-none"></div>
-        </div>
-      </section>
+/**
+ * 강좌 카드를 HTML로 렌더링
+ */
+export function renderCourseCard(course) {
+  return `
+    <div class="bg-surface-container-lowest rounded-2xl border border-surface-container overflow-hidden hover:shadow-md transition-all cursor-pointer course-card" data-course-id="${course.id}">
+      <!-- 헤더 배경 -->
+      <div class="h-24 bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[40px] text-primary">school</span>
+      </div>
 
-      <!-- Interactive Daily Training Hub -->
-      <section class="px-gutter pt-space-lg">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] text-secondary">fitness_center</span>
-            <h3 class="font-headline-md text-headline-md text-on-surface font-bold">일일 트레이닝 허브</h3>
+      <!-- 컨텐츠 -->
+      <div class="p-space-md flex flex-col gap-3">
+        <!-- 제목과 레벨 -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1">
+            <h4 class="font-headline-md text-headline-md text-on-surface font-bold line-clamp-2">${course.title}</h4>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">${course.description}</p>
           </div>
-          <span class="font-label-sm text-label-sm text-on-surface-variant font-medium">3/4 완료</span>
+          <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-bold whitespace-nowrap">
+            ${course.level || '미정'}
+          </span>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <!-- 1. AI 발음 클리닉 -->
-          <div class="p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:bg-surface-container-low transition-colors cursor-pointer group border border-surface-container">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-[18px]">🎙️</span>
-                <span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm font-bold">92점</span>
-              </div>
-              <div class="font-headline-md text-headline-md text-[15px] font-bold text-on-surface mt-2.5">
-                AI 발음 클리닉
-              </div>
-              <p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] mt-1 line-clamp-1">
-                ‘받침 연음화’ 교정 리포트
-              </p>
-            </div>
-            <div class="mt-3 pt-2 flex items-center justify-between text-secondary font-label-sm text-label-sm font-semibold">
-              <span>피드백 보기</span>
-              <span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
-            </div>
+
+        <!-- 정보 -->
+        <div class="flex items-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
+          <div class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">play_circle</span>
+            <span>${course.totalLessons || 0}차시</span>
           </div>
-          <!-- 2. 필수 단어 20개 -->
-          <div class="p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:bg-surface-container-low transition-colors cursor-pointer group border border-surface-container">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-[18px]">🃏</span>
-                <span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">SRS</span>
-              </div>
-              <div class="font-headline-md text-headline-md text-[15px] font-bold text-on-surface mt-2.5">
-                필수 단어 20개
-              </div>
-              <p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] mt-1 line-clamp-1">
-                식당 &amp; 마트 실전 어휘
-              </p>
-            </div>
-            <div class="mt-3 pt-2 flex items-center justify-between text-secondary font-label-sm text-label-sm font-semibold">
-              <span>플래시카드</span>
-              <span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
-            </div>
+          <div class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">person</span>
+            <span>${course.instructor || '강사 미정'}</span>
           </div>
         </div>
-      </section>
+
+        <!-- 버튼 -->
+        <button class="w-full h-10 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold flex items-center justify-center gap-2 hover:bg-secondary/90 active:scale-[0.98] transition-all cursor-pointer mt-2">
+          <span>강의 보기</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </div>
     </div>
   `;
 }
