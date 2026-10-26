@@ -1217,6 +1217,19 @@ function showPartDetailModal(part) {
 
   window.addEventListener('popstate', handlePopState);
 
+  // 9:16 쇼츠 영상이 아닌 경우 전체화면 버튼 숨기기
+  setTimeout(() => {
+    const playerWrap = document.getElementById('playerWrap');
+    const fsBtn = document.getElementById('fsBtn');
+    if (playerWrap && fsBtn) {
+      const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
+      if (!isShorts) {
+        // 16:9 일반 영상: 버튼 숨기기
+        fsBtn.style.display = 'none';
+      }
+    }
+  }, 50);
+
   // YouTube IFrame Player API 초기화
   setTimeout(() => {
     initYouTubePlayer();
