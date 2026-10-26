@@ -574,6 +574,9 @@ async function showLessonDetail(lesson) {
     if (modal) {
       modal.classList.remove('hidden');
 
+      // 히스토리에 차시 모달 상태 추가
+      window.history.pushState({ lessonModalOpen: true }, '');
+
       // 닫기 버튼 이벤트
       document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
         modal.remove();
@@ -595,6 +598,22 @@ async function showLessonDetail(lesson) {
           }
         });
       });
+
+      // 백 버튼 처리
+      const handleLessonPopState = (e) => {
+        const lessonModal = document.getElementById('modal-lesson-detail');
+        const partModal = document.getElementById('modal-part-detail');
+
+        if (partModal && !partModal.classList.contains('hidden')) {
+          // 파트 모달이 열려있으면 파트 모달만 닫기
+          closePartDetailModal(modal, true);
+        } else if (lessonModal && !lessonModal.classList.contains('hidden') && !e.state?.lessonModalOpen) {
+          // 차시 모달이 열려있는데 상태가 lessonModalOpen이 아니면 차시 모달 닫기
+          lessonModal.remove();
+        }
+      };
+
+      window.addEventListener('popstate', handleLessonPopState);
     }
   } catch (error) {
     console.error('❌ 레슨 상세 로드 실패:', error);
@@ -1206,16 +1225,18 @@ function showPartDetailModal(part) {
 
   // 백 버튼(popstate) 감시
   const handlePopState = (e) => {
-    if (!e.state?.partModalOpen) {
-      // 모달 열려있으면 닫기
-      const currentModal = document.getElementById('modal-part-detail');
-      if (currentModal && !currentModal.classList.contains('hidden')) {
-        closePartDetailModal(lessonModal, true);
-      }
+    const partModal = document.getElementById('modal-part-detail');
+    if (partModal && !partModal.classList.contains('hidden')) {
+      // 파트 모달이 열려있으면 닫고 차시 모달로 돌아가기
+      closePartDetailModal(lessonModal, true);
     }
   };
 
   window.addEventListener('popstate', handlePopState);
+
+  // 언마운트 시 이벤트 리스너 제거 (메모리 누수 방지)
+  const originalClose = closePartDetailModal;
+  window.removeEventListener('popstate', handlePopState);
 
   // 9:16 쇼츠 영상 처리
   setTimeout(() => {
