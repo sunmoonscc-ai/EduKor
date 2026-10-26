@@ -196,24 +196,24 @@ export function renderPartDetailModal(part) {
         </button>
       </div>
 
-      <!-- 영상 컨테이너 - 화면 가득 채움 -->
+      <!-- 영상 컨테이너 - 화면 가득 채움 (추천 콘텐츠 숨김) -->
       <div class="flex-1 w-full h-full flex items-center justify-center bg-black overflow-hidden">
         ${part.youtubeId ? `
-          <div class="w-full h-full flex items-center justify-center">
+          <div style="width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
             ${part.isShorts === true ? `
-              <!-- YouTube Shorts: 9:16 비율 -->
+              <!-- YouTube Shorts: 9:16 비율 (추천 콘텐츠 숨김) -->
               <iframe
-                style="width: 100%; height: 100%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
+                style="width: 110%; height: 110%; margin: -5% 0 0 -5%;"
+                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&rel=0&modestbranding=1"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
               </iframe>
             ` : `
-              <!-- 일반 YouTube: 16:9 비율 -->
+              <!-- 일반 YouTube: 16:9 비율 (추천 콘텐츠 숨김) -->
               <iframe
-                style="width: 100%; height: 100%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1"
+                style="width: 110%; height: 110%; margin: -5% 0 0 -5%;"
+                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1&rel=0&modestbranding=1"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>

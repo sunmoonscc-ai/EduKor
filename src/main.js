@@ -1172,10 +1172,10 @@ function closeLessonModal() {
 function showPartDetailModal(part) {
   const modalHTML = renderPartDetailModal(part);
 
-  // 차시 상세 모달 제거
+  // 차시 상세 모달 숨기기 (제거하지 않음)
   const lessonModal = document.getElementById('modal-lesson-detail');
   if (lessonModal) {
-    lessonModal.remove();
+    lessonModal.classList.add('hidden');
   }
 
   // 기존 파트 모달 제거
@@ -1191,22 +1191,27 @@ function showPartDetailModal(part) {
 
   // 닫기 버튼 이벤트
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
-    closePartDetailModal();
+    closePartDetailModal(lessonModal);
   });
 
   // 배경(검은색) 클릭 시 닫기
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) {
-      closePartDetailModal();
+      closePartDetailModal(lessonModal);
     }
   });
 }
 
-function closePartDetailModal() {
+function closePartDetailModal(lessonModal) {
   const modal = document.getElementById('modal-part-detail');
   if (modal) {
     modal.classList.add('hidden');
     setTimeout(() => modal.remove(), 300);
+  }
+
+  // 차시 상세 모달 다시 표시
+  if (lessonModal) {
+    lessonModal.classList.remove('hidden');
   }
 }
 
