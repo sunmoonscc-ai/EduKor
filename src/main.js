@@ -1239,14 +1239,9 @@ function showPartDetailModal(part) {
   // DB에서 받은 part.isShorts 값을 그대로 사용 (handlePartSubmit에서 URL로 판단했으므로)
   // part.isShorts는 이미 true/false로 설정되어 있음
 
-  console.log('📺 파트 상세 모달 표시:', {
-    partId: part.id,
-    partName: part.partName,
-    youtubeId: part.youtubeId,
-    isShorts: part.isShorts,
-    isShorts타입: typeof part.isShorts,
-    전체part: part
-  });
+  const debugInfo = `📺 isShorts: ${part.isShorts}, youtubeId: ${part.youtubeId}`;
+  console.log(debugInfo, part);
+  showToast(debugInfo, 'secondary');
 
   const modalHTML = renderPartDetailModal(part);
 
@@ -1268,12 +1263,13 @@ function showPartDetailModal(part) {
   modal?.classList.remove('hidden');
 
   // 렌더링된 HTML 속성 확인
-  const playerWrap = document.getElementById('playerWrap');
-  console.log('🎬 렌더링된 playerWrap 속성:', {
-    dataIsShorts: playerWrap?.getAttribute('data-is-shorts'),
-    dataVideoId: playerWrap?.getAttribute('data-video-id'),
-    playerWrap요소: playerWrap
-  });
+  setTimeout(() => {
+    const playerWrap = document.getElementById('playerWrap');
+    const dataIsShorts = playerWrap?.getAttribute('data-is-shorts');
+    const debugRender = `🎬 data-is-shorts: "${dataIsShorts}"`;
+    console.log(debugRender, playerWrap);
+    showToast(debugRender, 'secondary');
+  }, 100);
 
   // 팝업 스택에 추가
   modalStack.push('part');
