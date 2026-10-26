@@ -1189,6 +1189,9 @@ function showPartDetailModal(part) {
   modal = document.getElementById('modal-part-detail');
   modal?.classList.remove('hidden');
 
+  // 히스토리에 모달 상태 추가 (백 버튼 처리용)
+  window.history.pushState({ partModalOpen: true }, '');
+
   // 닫기 버튼 이벤트
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
     closePartDetailModal(lessonModal);
@@ -1200,6 +1203,19 @@ function showPartDetailModal(part) {
       closePartDetailModal(lessonModal);
     }
   });
+
+  // 백 버튼(popstate) 감시
+  const handlePopState = (e) => {
+    if (!e.state?.partModalOpen) {
+      // 모달 열려있으면 닫기
+      const currentModal = document.getElementById('modal-part-detail');
+      if (currentModal && !currentModal.classList.contains('hidden')) {
+        closePartDetailModal(lessonModal, true);
+      }
+    }
+  };
+
+  window.addEventListener('popstate', handlePopState);
 
   // YouTube IFrame Player API 초기화
   setTimeout(() => {
@@ -1361,7 +1377,7 @@ function setupFullscreenButton() {
   document.addEventListener('msfullscreenchange', handleFullscreenChange);
 }
 
-function closePartDetailModal(lessonModal) {
+function closePartDetailModal(lessonModal, fromBackButton = false) {
   const modal = document.getElementById('modal-part-detail');
   if (modal) {
     modal.classList.add('hidden');
@@ -1371,6 +1387,11 @@ function closePartDetailModal(lessonModal) {
   // 차시 상세 모달 다시 표시
   if (lessonModal) {
     lessonModal.classList.remove('hidden');
+  }
+
+  // 백 버튼이 아닌 경우에만 히스토리 되돌리기 (백 버튼에서 호출되면 중복 방지)
+  if (!fromBackButton && window.history.state?.partModalOpen) {
+    window.history.back();
   }
 }
 
