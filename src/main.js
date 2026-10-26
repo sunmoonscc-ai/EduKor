@@ -1019,17 +1019,43 @@ function hidePartForm() {
   selectedPartForEdit = null;
 }
 
+function extractYoutubeId(input) {
+  if (!input) return '';
+
+  // 이미 ID 형식인 경우 (11자 길이, alphanumeric, -, _만 포함)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input.trim())) {
+    return input.trim();
+  }
+
+  // URL에서 ID 추출
+  let id = '';
+
+  // youtube.com/watch?v=VIDEO_ID
+  const match1 = input.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  if (match1?.[1]) {
+    id = match1[1];
+  }
+
+  return id;
+}
+
 async function handlePartSubmit(e) {
   e.preventDefault();
 
   const partType = document.getElementById('input-part-type').value;
   const partName = document.getElementById('input-part-name').value;
-  const youtubeId = document.getElementById('input-part-youtube-id').value;
+  const youtubeInput = document.getElementById('input-part-youtube-id').value;
+  const youtubeId = extractYoutubeId(youtubeInput);
   const duration = parseInt(document.getElementById('input-part-duration').value);
   const description = document.getElementById('input-part-description').value;
 
   if (!selectedLessonForParts) {
     showToast('차시가 선택되지 않았습니다.', 'error');
+    return;
+  }
+
+  if (!youtubeId) {
+    showToast('유효한 YouTube URL 또는 ID를 입력하세요.', 'error');
     return;
   }
 

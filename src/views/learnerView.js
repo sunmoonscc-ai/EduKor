@@ -103,18 +103,25 @@ export function renderLessonDetailModal(lesson, parts = []) {
           <div class="lesson-part-accordion-body hidden border-t border-surface-container">
             <div class="flex flex-col gap-3 sm:gap-4 p-4 sm:p-6">
               <!-- 영상 -->
-              <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
-                <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
-                  <iframe
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                    src="https://www.youtube.com/embed/${part.youtubeId}"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    class="rounded-xl sm:rounded-2xl">
-                  </iframe>
+              ${part.youtubeId ? `
+                <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
+                  <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+                    <iframe
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                      src="https://www.youtube.com/embed/${part.youtubeId}"
+                      frameborder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen
+                      class="rounded-xl sm:rounded-2xl">
+                    </iframe>
+                  </div>
                 </div>
-              </div>
+              ` : `
+                <div class="bg-surface-container rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center">
+                  <span class="material-symbols-outlined text-[40px] text-on-surface-variant">video_library</span>
+                  <p class="font-body-sm text-on-surface-variant mt-2">영상이 준비되지 않았습니다</p>
+                </div>
+              `}
 
               <!-- 설명 -->
               ${part.description ? `<p class="font-body-sm text-body-sm text-on-surface-variant text-xs sm:text-sm whitespace-pre-line">${part.description}</p>` : ''}

@@ -98,8 +98,8 @@ export function renderContentManagementView() {
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">YouTube ID *</label>
-                  <input type="text" id="input-part-youtube-id" placeholder="dQw4w9WgXcQ" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
+                  <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">YouTube URL 또는 ID *</label>
+                  <input type="text" id="input-part-youtube-id" placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ 또는 dQw4w9WgXcQ" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
                 </div>
                 <div>
                   <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">소요 시간 (분) *</label>
