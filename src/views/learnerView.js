@@ -51,7 +51,7 @@ export function renderCourseCard(course) {
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1 min-w-0">
             <h4 class="font-headline-md text-headline-md text-on-surface font-bold line-clamp-2 text-sm sm:text-base">${course.title}</h4>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2 text-xs sm:text-sm">${course.description}</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 whitespace-pre-line break-words text-xs sm:text-sm">${course.description}</p>
           </div>
           <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-bold whitespace-nowrap text-xs flex-shrink-0">
             ${course.level || '미정'}
