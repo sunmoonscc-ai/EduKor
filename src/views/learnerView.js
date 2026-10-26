@@ -196,30 +196,32 @@ export function renderPartDetailModal(part) {
         </button>
       </div>
 
-      <!-- 영상 컨테이너 - 화면 가득 채움 (추천 콘텐츠 숨김) -->
+      <!-- 영상 컨테이너 -->
       <div class="flex-1 w-full h-full flex items-center justify-center bg-black overflow-hidden">
         ${part.youtubeId ? `
-          <div style="width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-            ${part.isShorts === true ? `
-              <!-- YouTube Shorts: 9:16 비율 (추천 콘텐츠 숨김) -->
+          ${part.isShorts === true ? `
+            <!-- YouTube Shorts: 9:16 세로 비율 -->
+            <div style="width: auto; height: 100%; aspect-ratio: 9/16; background: #000; overflow: hidden;">
               <iframe
-                style="width: 110%; height: 110%; margin: -5% 0 0 -5%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&rel=0&modestbranding=1"
+                style="width: 100%; height: 100%;"
+                src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&loop=1&playlist=${part.youtubeId}&rel=0&modestbranding=1"
                 frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                title="YouTube Shorts"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen>
               </iframe>
-            ` : `
-              <!-- 일반 YouTube: 16:9 비율 (추천 콘텐츠 숨김) -->
-              <iframe
-                style="width: 110%; height: 110%; margin: -5% 0 0 -5%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1&rel=0&modestbranding=1"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-              </iframe>
-            `}
-          </div>
+            </div>
+          ` : `
+            <!-- 일반 YouTube: 16:9 가로 비율 (전체 화면) -->
+            <iframe
+              style="width: 100%; height: 100%;"
+              src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1&rel=0&modestbranding=1&playsinline=1"
+              frameborder="0"
+              title="YouTube Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          `}
         ` : `
           <div class="text-center text-on-surface-variant">
             <span class="material-symbols-outlined text-[48px]">video_library</span>
