@@ -268,14 +268,15 @@ export async function getTeachingLessonsByCourseId(courseId) {
   try {
     const q = query(
       collection(db, TEACHING_LESSONS_COLLECTION),
-      where('courseId', '==', courseId),
-      orderBy('lessonNumber', 'asc')
+      where('courseId', '==', courseId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    const lessons = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    // 클라이언트 측에서 정렬 (Firebase composite index 불필요)
+    return lessons.sort((a, b) => (a.lessonNumber || 0) - (b.lessonNumber || 0));
   } catch (error) {
     console.error('❌ 교육 차시 조회 실패:', error);
     return [];

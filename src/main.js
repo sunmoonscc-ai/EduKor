@@ -73,8 +73,12 @@ async function navigateTo(view) {
   }
 
   currentView = view;
+  // 현재 페이지 저장 (새로고침 후 복원용)
   if (view !== 'login') {
+    localStorage.setItem('koredu_lastView', view);
     updateNavActive(view);
+  } else {
+    localStorage.removeItem('koredu_lastView');
   }
 
   // Animate out
@@ -673,11 +677,20 @@ async function initContentManagementView() {
 
   // 차시 관리 탭 이벤트
   const coursesSelectForLessons = document.getElementById('select-course-for-lessons');
+  console.log('📌 차시 관리 초기화:', {
+    selectExists: !!coursesSelectForLessons,
+    coursesCount: allTeachingCourses.length,
+    courses: allTeachingCourses.map(c => ({ id: c.id, title: c.title }))
+  });
+
   if (coursesSelectForLessons) {
-    coursesSelectForLessons.innerHTML = '<option value="">강의를 선택하세요</option>' +
+    const optionHtml = '<option value="">강의를 선택하세요</option>' +
       allTeachingCourses.map(course => `<option value="${course.id}">${course.title}</option>`).join('');
+    console.log('✏️ 드롭다운 HTML 설정:', optionHtml);
+    coursesSelectForLessons.innerHTML = optionHtml;
 
     coursesSelectForLessons.addEventListener('change', async (e) => {
+      console.log('🔄 드롭다운 change 이벤트 발생:', e.target.value);
       selectedCourseForLessons = e.target.value;
       await loadLessonsForSelectedCourse();
     });
@@ -691,6 +704,14 @@ async function initContentManagementView() {
     }
     showLessonModal();
   });
+
+  // 차시 모달 닫기 버튼
+  document.getElementById('btn-close-lesson-modal')?.addEventListener('click', closeLessonModal);
+  document.getElementById('modal-lesson-overlay')?.addEventListener('click', closeLessonModal);
+  document.getElementById('btn-cancel-lesson')?.addEventListener('click', closeLessonModal);
+
+  // 차시 폼 제출
+  document.getElementById('form-lesson')?.addEventListener('submit', handleLessonSubmit);
 
   // 파트 추가 버튼
   document.getElementById('btn-new-part')?.addEventListener('click', () => {
@@ -707,10 +728,15 @@ async function initContentManagementView() {
 }
 
 async function loadLessonsForSelectedCourse() {
-  if (!selectedCourseForLessons) return;
+  if (!selectedCourseForLessons) {
+    console.warn('⚠️ selectedCourseForLessons가 설정되지 않음');
+    return;
+  }
 
   try {
+    console.log('📚 차시 목록 로드 시작:', selectedCourseForLessons);
     allLessonsForSelectedCourse = await getTeachingLessonsByCourseId(selectedCourseForLessons);
+    console.log('✅ 차시 데이터 조회 완료:', allLessonsForSelectedCourse);
     renderLessonsList(allLessonsForSelectedCourse);
   } catch (error) {
     console.error('❌ 차시 목록 로드 실패:', error);
@@ -720,7 +746,19 @@ async function loadLessonsForSelectedCourse() {
 
 function renderLessonsList(lessons) {
   const container = document.getElementById('lessons-list-container');
-  if (!container) return;
+  console.log('🎬 renderLessonsList 호출:', {
+    lessonsCount: lessons.length,
+    containerExists: !!container,
+    lessons: lessons.map(l => ({ id: l.id, number: l.lessonNumber, title: l.title }))
+  });
+
+  if (!container) {
+    console.error('❌ lessons-list-container를 찾을 수 없습니다!');
+    console.log('📍 현재 DOM:', document.body.innerHTML.substring(0, 500));
+    return;
+  }
+
+  console.log('✅ container 찾음. 렌더링 시작...');
 
   if (lessons.length === 0) {
     container.innerHTML = `
@@ -749,8 +787,12 @@ function renderLessonsList(lessons) {
     </div>
   `).join('');
 
+  console.log('🎨 HTML 렌더링 완료, 이벤트 바인드 시작...');
+
   // 차시 카드 클릭 이벤트
-  container.querySelectorAll('.lesson-card').forEach(card => {
+  const lessonCards = container.querySelectorAll('.lesson-card');
+  console.log('📌 차시 카드 개수:', lessonCards.length);
+  lessonCards.forEach(card => {
     card.addEventListener('click', async () => {
       const lessonId = card.dataset.lessonId;
       const lesson = allLessonsForSelectedCourse.find(l => l.id === lessonId);
@@ -925,12 +967,84 @@ async function handleDeletePart(partId) {
 }
 
 function showLessonModal(lesson = null) {
-  // 차시 모달은 차시 관리 탭에서 간단히 처리
-  // 현재는 빠른 구현을 위해 생략 (필요시 별도 폼 추가)
+  const modal = document.getElementById('modal-lesson-form');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('modal-lesson-title');
+  const form = document.getElementById('form-lesson');
+
   if (lesson) {
-    showToast('차시 편집 기능은 준비 중입니다.', 'info');
+    // 차시 편집
+    titleEl.textContent = '차시 편집';
+    document.getElementById('input-lesson-number').value = lesson.lessonNumber;
+    document.getElementById('input-lesson-title').value = lesson.title;
+    document.getElementById('input-lesson-goal').value = lesson.goal;
+    document.getElementById('input-lesson-letters').value = lesson.learnLetters;
+    form.dataset.lessonId = lesson.id;
   } else {
-    showToast('차시 추가 기능은 준비 중입니다.', 'info');
+    // 차시 추가
+    titleEl.textContent = '새 차시 만들기';
+    form.reset();
+    delete form.dataset.lessonId;
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeLessonModal() {
+  const modal = document.getElementById('modal-lesson-form');
+  modal?.classList.add('hidden');
+}
+
+async function handleLessonSubmit(e) {
+  e.preventDefault();
+
+  const lessonNumber = parseInt(document.getElementById('input-lesson-number').value);
+  const title = document.getElementById('input-lesson-title').value;
+  const goal = document.getElementById('input-lesson-goal').value;
+  const learnLetters = document.getElementById('input-lesson-letters').value;
+
+  if (!selectedCourseForLessons) {
+    showToast('강의가 선택되지 않았습니다.', 'error');
+    return;
+  }
+
+  const form = document.getElementById('form-lesson');
+  const lessonId = form.dataset.lessonId;
+
+  if (lessonId) {
+    // 차시 수정
+    const result = await updateTeachingLesson(lessonId, {
+      lessonNumber,
+      title,
+      goal,
+      learnLetters
+    });
+
+    if (result.success) {
+      showToast('차시가 수정되었습니다.', 'success');
+      closeLessonModal();
+      await loadLessonsForSelectedCourse();
+    } else {
+      showToast(`차시 수정 실패: ${result.error}`, 'error');
+    }
+  } else {
+    // 차시 생성
+    const result = await createTeachingLesson({
+      courseId: selectedCourseForLessons,
+      lessonNumber,
+      title,
+      goal,
+      learnLetters
+    });
+
+    if (result.success) {
+      showToast('차시가 추가되었습니다.', 'success');
+      closeLessonModal();
+      await loadLessonsForSelectedCourse();
+    } else {
+      showToast(`차시 추가 실패: ${result.error}`, 'error');
+    }
   }
 }
 
@@ -1125,7 +1239,7 @@ async function switchAdminSubTab(subTab) {
       break;
     case 'content':
       subContent.innerHTML = renderContentManagementView();
-      initContentManagementView();
+      await initContentManagementView();
       break;
     case 'analytics':
       subContent.innerHTML = `
@@ -1748,8 +1862,7 @@ function updateProfileButtonUI() {
     // 로그인된 경우 - 이니셜 표시
     const initials = (currentUser.name || 'User')
       .split(' ')
-      .map(word => word[0])
-      .toUpperCase()
+      .map(word => word[0].toUpperCase())
       .join('')
       .slice(0, 2);
 
@@ -2031,56 +2144,72 @@ async function initApp() {
     adminBtn.classList.add('hidden');
   }
 
-  // 인증 상태 감지
-  onAuthChange((user) => {
-    currentUser = user;
-    if (user) {
-      console.log('👤 로그인됨:', user.email, `(역할: ${user.role})`);
-      // 하단 네비게이션 표시
-      if (bottomNav) {
-        bottomNav.classList.remove('hidden');
-      }
-      // 알림과 프로필 버튼 표시
-      if (notificationsBtn) notificationsBtn.classList.remove('hidden');
-      if (profileBtn) profileBtn.classList.remove('hidden');
-      // 프로필 버튼 UI 업데이트
-      updateProfileButtonUI();
-      // admin 탭 표시/숨김
-      if (adminBtn) {
-        if (user.role === 'admin') {
-          adminBtn.classList.remove('hidden');
-        } else {
+  // 인증 상태 감지 (처음 호출될 때까지 기다리기)
+  await new Promise((resolve) => {
+    let isFirstCall = true;
+    onAuthChange((user) => {
+      currentUser = user;
+      console.log(isFirstCall ? '🔑 초기 인증 상태 확인' : '👤 인증 상태 변경', user ? `(${user.email})` : '(로그아웃)');
+
+      if (user) {
+        // 하단 네비게이션 표시
+        if (bottomNav) {
+          bottomNav.classList.remove('hidden');
+        }
+        // 알림과 프로필 버튼 표시
+        if (notificationsBtn) notificationsBtn.classList.remove('hidden');
+        if (profileBtn) profileBtn.classList.remove('hidden');
+        // 프로필 버튼 UI 업데이트
+        updateProfileButtonUI();
+        // admin 탭 표시/숨김
+        if (adminBtn) {
+          if (user.role === 'admin') {
+            adminBtn.classList.remove('hidden');
+          } else {
+            adminBtn.classList.add('hidden');
+          }
+        }
+      } else {
+        // 하단 네비게이션 숨김
+        if (bottomNav) {
+          bottomNav.classList.add('hidden');
+        }
+        // 알림과 프로필 버튼 숨김
+        if (notificationsBtn) notificationsBtn.classList.add('hidden');
+        if (profileBtn) profileBtn.classList.add('hidden');
+        // 프로필 버튼 UI 업데이트
+        updateProfileButtonUI();
+        // 로그아웃 시 admin 탭 숨김
+        if (adminBtn) {
           adminBtn.classList.add('hidden');
         }
       }
-    } else {
-      console.log('🚪 로그아웃됨');
-      // 하단 네비게이션 숨김
-      if (bottomNav) {
-        bottomNav.classList.add('hidden');
+
+      // 첫 번째 호출만 처리 (페이지 네비게이션)
+      if (isFirstCall) {
+        isFirstCall = false;
+        if (!user) {
+          navigateTo('login');
+        } else {
+          const lastView = localStorage.getItem('koredu_lastView');
+          navigateTo(lastView || 'landing');
+        }
+        resolve(); // Promise 완료
+      } else {
+        // 이후 호출 (로그아웃 등)에서 페이지 변경
+        if (!user && currentView !== 'login') {
+          navigateTo('login');
+        } else if (user && currentView === 'login') {
+          const lastView = localStorage.getItem('koredu_lastView');
+          navigateTo(lastView || 'landing');
+        }
       }
-      // 알림과 프로필 버튼 숨김
-      if (notificationsBtn) notificationsBtn.classList.add('hidden');
-      if (profileBtn) profileBtn.classList.add('hidden');
-      // 프로필 버튼 UI 업데이트
-      updateProfileButtonUI();
-      // 로그아웃 시 admin 탭 숨김
-      if (adminBtn) {
-        adminBtn.classList.add('hidden');
-      }
-    }
+    });
   });
 
   navBtns.forEach(btn => {
     btn.addEventListener('click', () => navigateTo(btn.dataset.view));
   });
-
-  // 로그인되지 않은 경우 로그인 페이지로 이동
-  if (!currentUser) {
-    await navigateTo('login');
-  } else {
-    await navigateTo('landing');
-  }
 }
 
 initApp();

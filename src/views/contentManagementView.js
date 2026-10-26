@@ -185,5 +185,54 @@ export function renderContentManagementView() {
         </form>
       </div>
     </div>
+
+    <!-- 차시 생성/수정 모달 -->
+    <div id="modal-lesson-form" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-2 sm:p-4">
+      <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm" id="modal-lesson-overlay"></div>
+      <div class="relative w-full max-w-2xl bg-surface-container-lowest rounded-2xl sm:rounded-3xl shadow-xl border border-surface-container p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 max-h-[85vh] overflow-y-auto overflow-x-hidden">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg" id="modal-lesson-title">새 차시 만들기</h2>
+          <button class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high flex-shrink-0" id="btn-close-lesson-modal">
+            <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-on-surface-variant">close</span>
+          </button>
+        </div>
+
+        <form id="form-lesson" class="flex flex-col gap-3 sm:gap-4">
+          <!-- 차시 번호 -->
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">차시 번호 *</label>
+            <input type="number" id="input-lesson-number" placeholder="1" min="1" max="100" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors text-sm" required>
+          </div>
+
+          <!-- 차시 제목 -->
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">차시 제목 *</label>
+            <input type="text" id="input-lesson-title" placeholder="예: 한글의 기초: 모음" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors text-sm" required>
+          </div>
+
+          <!-- 수업 목표 -->
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">수업 목표 *</label>
+            <textarea id="input-lesson-goal" placeholder="모음 6개를 듣고, 말하고, 쓸 수 있어요. / I can hear, say, and write 6 vowels." class="w-full h-20 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors resize-none text-sm" required></textarea>
+          </div>
+
+          <!-- 배울 글자 -->
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">배울 글자 *</label>
+            <input type="text" id="input-lesson-letters" placeholder="ㅏ ㅓ ㅗ ㅜ ㅡ ㅣ (+ 소리 없는 ㅇ)" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors text-sm" required>
+          </div>
+
+          <!-- 버튼 -->
+          <div class="flex gap-2 sm:gap-3 mt-2 sm:mt-4">
+            <button type="button" class="flex-1 h-10 sm:h-12 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors text-sm" id="btn-cancel-lesson">
+              취소
+            </button>
+            <button type="submit" class="flex-1 h-10 sm:h-12 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold cursor-pointer hover:bg-secondary/90 transition-colors text-sm">
+              저장
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   `;
 }
