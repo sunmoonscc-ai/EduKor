@@ -1056,6 +1056,7 @@ async function handlePartSubmit(e) {
   const youtubeId = extractYoutubeId(youtubeInput);
   const duration = parseInt(document.getElementById('input-part-duration').value);
   const description = document.getElementById('input-part-description').value;
+  const isShorts = youtubeInput.includes('/shorts/');
 
   if (!selectedLessonForParts) {
     showToast('차시가 선택되지 않았습니다.', 'error');
@@ -1075,7 +1076,8 @@ async function handlePartSubmit(e) {
         partName,
         youtubeId,
         duration,
-        description
+        description,
+        isShorts
       });
 
       if (result.success) {
@@ -1096,6 +1098,7 @@ async function handlePartSubmit(e) {
         youtubeId,
         duration,
         description,
+        isShorts,
         order: allPartsForSelectedLesson.length + 1
       });
 
