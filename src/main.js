@@ -1236,11 +1236,8 @@ function closeLessonModal() {
 }
 
 function showPartDetailModal(part) {
-  // YouTube URL 기반으로 isShorts 판단
-  if (part.youtubeId) {
-    // youtubeId가 shorts URL이면 9:16, 아니면 16:9
-    part.isShorts = part.youtubeId.toLowerCase().includes('shorts');
-  }
+  // DB에서 받은 part.isShorts 값을 그대로 사용 (handlePartSubmit에서 URL로 판단했으므로)
+  // part.isShorts는 이미 true/false로 설정되어 있음
 
   const modalHTML = renderPartDetailModal(part);
 
