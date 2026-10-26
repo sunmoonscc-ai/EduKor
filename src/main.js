@@ -1239,9 +1239,8 @@ function showPartDetailModal(part) {
   // DB에서 받은 part.isShorts 값을 그대로 사용 (handlePartSubmit에서 URL로 판단했으므로)
   // part.isShorts는 이미 true/false로 설정되어 있음
 
-  const debugInfo = `📺 isShorts: ${part.isShorts}, youtubeId: ${part.youtubeId}`;
-  console.log(debugInfo, part);
-  showToast(debugInfo, 'secondary');
+  console.log('파트 데이터:', part);
+  alert(`isShorts: ${part.isShorts}\nyoutubeId: ${part.youtubeId}\npartName: ${part.partName}`);
 
   const modalHTML = renderPartDetailModal(part);
 
@@ -1266,10 +1265,9 @@ function showPartDetailModal(part) {
   setTimeout(() => {
     const playerWrap = document.getElementById('playerWrap');
     const dataIsShorts = playerWrap?.getAttribute('data-is-shorts');
-    const debugRender = `🎬 data-is-shorts: "${dataIsShorts}"`;
-    console.log(debugRender, playerWrap);
-    showToast(debugRender, 'secondary');
-  }, 100);
+    alert(`렌더링된 data-is-shorts: "${dataIsShorts}"\n버튼이 보이나요?`);
+    console.log('렌더링됨:', dataIsShorts, playerWrap);
+  }, 200);
 
   // 팝업 스택에 추가
   modalStack.push('part');
