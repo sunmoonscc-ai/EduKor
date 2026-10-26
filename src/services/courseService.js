@@ -393,14 +393,15 @@ export async function getLessonParts(lessonId) {
   try {
     const q = query(
       collection(db, TEACHING_LESSON_PARTS_COLLECTION),
-      where('lessonId', '==', lessonId),
-      orderBy('order', 'asc')
+      where('lessonId', '==', lessonId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    const parts = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    // 클라이언트 측에서 정렬 (Firebase composite index 불필요)
+    return parts.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('❌ 차시 파트 조회 실패:', error);
     return [];
