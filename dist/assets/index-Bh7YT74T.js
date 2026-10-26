@@ -366,7 +366,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
         ${e.youtubeId?`
           <div id="playerWrap" data-video-id="${e.youtubeId}" data-is-shorts="${e.isShorts===!0}">
             <div id="ytPlayer"></div>
-            <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all cursor-pointer block md:hidden" title="전체화면">
+            <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all cursor-pointer" title="전체화면">
               <span class="material-symbols-outlined text-[24px]">fullscreen</span>
             </button>
           </div>
