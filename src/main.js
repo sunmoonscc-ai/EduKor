@@ -574,9 +574,6 @@ async function showLessonDetail(lesson) {
     if (modal) {
       modal.classList.remove('hidden');
 
-      // 히스토리에 차시 모달 상태 추가
-      window.history.pushState({ lessonModalOpen: true }, '');
-
       // 닫기 버튼 이벤트
       document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
         modal.remove();
@@ -599,27 +596,14 @@ async function showLessonDetail(lesson) {
         });
       });
 
-      // 백 버튼 처리 (모달의 UI 상태로만 판단)
+      // 백 버튼 처리 (파트 모달만 처리)
       const handleLessonPopState = (e) => {
-        const lessonModal = document.getElementById('modal-lesson-detail');
         const partModal = document.getElementById('modal-part-detail');
 
-        // 파트 모달이 열려있으면 닫기
+        // 파트 모달이 열려있으면 X 버튼과 같이 닫기
         if (partModal && !partModal.classList.contains('hidden')) {
-          closePartDetailModal(lessonModal, true);
-          return;
+          closePartDetailModal(document.getElementById('modal-lesson-detail'), true);
         }
-
-        // 차시 모달이 열려있으면 닫기
-        if (lessonModal && !lessonModal.classList.contains('hidden')) {
-          lessonModal.remove();
-          // 현재 history entry를 메인 페이지로 교체 (뒤로 가지 않음)
-          window.history.replaceState(null, '');
-          return;
-        }
-
-        // 모든 모달이 닫혀있으면 메인 페이지 유지
-        window.history.replaceState(null, '');
       };
 
       // 중복 등록 방지
