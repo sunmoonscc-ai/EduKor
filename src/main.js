@@ -55,6 +55,53 @@ let levelTestAnswers = [];
 let levelTestStep = 0;
 let currentUser = null;
 
+// ── 팝업 스택 관리 (history와 UI 동기화) ────────────────────────────────────────
+let modalStack = []; // 열려있는 팝업 목록 ['lesson', 'part' 등]
+
+// 전역 popstate 핸들러 (앱 전체에서 단 1개만 실행)
+function initGlobalPopStateHandler() {
+  window.addEventListener('popstate', (e) => {
+    const targetDepth = e.state?.modalDepth ?? 0;
+
+    // 현재 열려있는 팝업이 targetDepth보다 많으면 닫기
+    while (modalStack.length > targetDepth) {
+      const modalType = modalStack.pop();
+      closeModalByType(modalType);
+    }
+  });
+}
+
+// 모달 타입에 따라 실제 닫기 처리
+function closeModalByType(modalType) {
+  if (modalType === 'lesson') {
+    const modal = document.getElementById('modal-lesson-detail');
+    if (modal) {
+      // 저장된 popstate 핸들러 제거
+      if (modal.popstateHandler) {
+        window.removeEventListener('popstate', modal.popstateHandler);
+      }
+      modal.remove();
+    }
+  } else if (modalType === 'part') {
+    const modal = document.getElementById('modal-part-detail');
+    if (modal) {
+      if (modal.popstateHandler) {
+        window.removeEventListener('popstate', modal.popstateHandler);
+      }
+      modal.classList.add('hidden');
+      setTimeout(() => modal.remove(), 300);
+      // 쇼츠 전체화면 상태 해제
+      document.body.classList.remove('focus-shorts');
+
+      // 차시 모달 다시 표시
+      const lessonModal = document.getElementById('modal-lesson-detail');
+      if (lessonModal) {
+        lessonModal.classList.remove('hidden');
+      }
+    }
+  }
+}
+
 // ── DOM refs ───────────────────────────────────────────────────────────────────
 const viewRoot = document.getElementById('view-root');
 const navBtns = document.querySelectorAll('.nav-btn');
@@ -579,24 +626,27 @@ async function showLessonDetail(lesson) {
     if (modal) {
       modal.classList.remove('hidden');
 
-      // 히스토리에 차시 모달 상태 추가 (URL 변경 없음)
-      window.history.pushState({ lessonModalOpen: true }, '', window.location.href);
+      // 팝업 스택에 추가
+      modalStack.push('lesson');
 
-      // 닫기 버튼 이벤트
+      // 히스토리에 차시 모달 상태 추가 (URL 변경 없음)
+      window.history.pushState(
+        { modalDepth: modalStack.length },
+        '',
+        window.location.href
+      );
+
+      // 닫기 버튼 이벤트 (history.back() 호출 → popstate 발생 → closeModalByType 처리)
       document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
-        // popstate 리스너 제거
-        if (modal.popstateHandler) {
-          window.removeEventListener('popstate', modal.popstateHandler);
+        if (window.history.state?.modalDepth > 0) {
+          window.history.back();
         }
-        modal.remove();
       });
 
       document.getElementById('modal-lesson-overlay')?.addEventListener('click', () => {
-        // popstate 리스너 제거
-        if (modal.popstateHandler) {
-          window.removeEventListener('popstate', modal.popstateHandler);
+        if (window.history.state?.modalDepth > 0) {
+          window.history.back();
         }
-        modal.remove();
       });
 
       // 파트 아코디언 이벤트 - 클릭 시 전체화면 모달 띄우기
@@ -611,28 +661,6 @@ async function showLessonDetail(lesson) {
           }
         });
       });
-
-      // 백 버튼 처리
-      const handleLessonPopState = (e) => {
-        const lessonModal = document.getElementById('modal-lesson-detail');
-        const partModal = document.getElementById('modal-part-detail');
-
-        // 파트 모달이 열려있으면 닫기
-        if (partModal && !partModal.classList.contains('hidden')) {
-          closePartDetailModal(lessonModal, true);
-          return;
-        }
-
-        // 차시 모달이 열려있으면 닫기
-        if (lessonModal && !lessonModal.classList.contains('hidden')) {
-          lessonModal.remove();
-          return;
-        }
-      };
-
-      // popstate 리스너 저장 (나중에 정리할 때 사용)
-      modal.popstateHandler = handleLessonPopState;
-      window.addEventListener('popstate', handleLessonPopState);
     }
   } catch (error) {
     console.error('❌ 레슨 상세 로드 실패:', error);
@@ -1233,42 +1261,31 @@ function showPartDetailModal(part) {
   modal = document.getElementById('modal-part-detail');
   modal?.classList.remove('hidden');
 
-  // 히스토리에 모달 상태 추가 (백 버튼 처리용, URL 변경 없음)
-  window.history.pushState({ partModalOpen: true }, '', window.location.href);
+  // 팝업 스택에 추가
+  modalStack.push('part');
 
-  // 닫기 버튼 이벤트
+  // 히스토리에 모달 상태 추가 (백 버튼 처리용, URL 변경 없음)
+  window.history.pushState(
+    { modalDepth: modalStack.length },
+    '',
+    window.location.href
+  );
+
+  // 닫기 버튼 이벤트 (history.back() 호출 → popstate 발생 → closeModalByType 처리)
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
-    // history.back() 호출하면 popstate 이벤트 발생 → closePartDetailModal 호출됨
-    if (window.history.state?.partModalOpen) {
+    if (window.history.state?.modalDepth > 0) {
       window.history.back();
-    } else {
-      closePartDetailModal(lessonModal);
     }
   });
 
   // 배경(검은색) 클릭 시 닫기
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) {
-      if (window.history.state?.partModalOpen) {
+      if (window.history.state?.modalDepth > 0) {
         window.history.back();
-      } else {
-        closePartDetailModal(lessonModal);
       }
     }
   });
-
-  // 백 버튼(popstate) 감시
-  const handlePopState = (e) => {
-    const partModal = document.getElementById('modal-part-detail');
-    if (partModal && !partModal.classList.contains('hidden')) {
-      // 파트 모달이 열려있으면 닫고 차시 모달로 돌아가기
-      closePartDetailModal(lessonModal, true);
-    }
-  };
-
-  // popstate 리스너 저장 (나중에 정리할 때 사용)
-  modal.popstateHandler = handlePopState;
-  window.addEventListener('popstate', handlePopState);
 
   // 9:16 쇼츠 영상 처리
   setTimeout(() => {
@@ -1447,31 +1464,7 @@ function setupFullscreenButton() {
   document.addEventListener('msfullscreenchange', handleFullscreenChange);
 }
 
-function closePartDetailModal(lessonModal, fromBackButton = false) {
-  const modal = document.getElementById('modal-part-detail');
-  if (modal) {
-    // popstate 리스너 제거
-    if (modal.popstateHandler) {
-      window.removeEventListener('popstate', modal.popstateHandler);
-    }
-
-    modal.classList.add('hidden');
-    setTimeout(() => modal.remove(), 300);
-  }
-
-  // 쇼츠 전체화면 상태 해제
-  document.body.classList.remove('focus-shorts');
-
-  // 차시 상세 모달 다시 표시
-  if (lessonModal) {
-    lessonModal.classList.remove('hidden');
-  }
-
-  // 백 버튼이 아닌 경우에만 히스토리 처리 (URL 변경 없음)
-  if (!fromBackButton && window.history.state?.partModalOpen) {
-    window.history.back();
-  }
-}
+// 더 이상 사용 안 함 (closeModalByType이 처리함)
 
 async function handleLessonSubmit(e) {
   e.preventDefault();
@@ -2598,6 +2591,9 @@ function showLanguageMenu() {
 
 // ── Boot ───────────────────────────────────────────────────────────────────────
 async function initApp() {
+  // 전역 popstate 핸들러 초기화 (앱 전체에서 단 1개만 등록)
+  initGlobalPopStateHandler();
+
   // 언어 선택 버튼 초기화
   initLanguageSelector();
 
