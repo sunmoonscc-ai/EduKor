@@ -574,6 +574,9 @@ async function showLessonDetail(lesson) {
     if (modal) {
       modal.classList.remove('hidden');
 
+      // 히스토리에 차시 모달 상태 추가
+      window.history.pushState({ lessonModalOpen: true }, '');
+
       // 닫기 버튼 이벤트
       document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
         modal.remove();
@@ -596,18 +599,21 @@ async function showLessonDetail(lesson) {
         });
       });
 
-      // 백 버튼 처리 (파트 모달만 처리)
+      // 백 버튼 처리
       const handleLessonPopState = (e) => {
-        const partModal = document.getElementById('modal-part-detail');
         const lessonModal = document.getElementById('modal-lesson-detail');
+        const partModal = document.getElementById('modal-part-detail');
 
         // 파트 모달이 열려있으면 닫기
         if (partModal && !partModal.classList.contains('hidden')) {
           closePartDetailModal(lessonModal, true);
-          // 차시 모달이 있으면 상태 유지
-          if (lessonModal && !lessonModal.classList.contains('hidden')) {
-            window.history.pushState(null, '');
-          }
+          return;
+        }
+
+        // 차시 모달이 열려있으면 닫기
+        if (lessonModal && !lessonModal.classList.contains('hidden')) {
+          lessonModal.remove();
+          return;
         }
       };
 
