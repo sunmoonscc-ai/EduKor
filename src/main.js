@@ -1214,7 +1214,22 @@ function showPartDetailModal(part) {
 
 function initYouTubePlayer() {
   const playerDiv = document.getElementById('ytPlayer');
-  if (!playerDiv || !window.ytPlayerData) return;
+  const playerWrap = document.getElementById('playerWrap');
+
+  if (!playerDiv || !playerWrap) {
+    console.error('Player elements not found');
+    return;
+  }
+
+  const videoId = playerWrap.getAttribute('data-video-id');
+  const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
+
+  if (!videoId) {
+    console.error('Video ID not found');
+    return;
+  }
+
+  console.log('Initializing YouTube player with videoId:', videoId);
 
   // YouTube API 스크립트 로드
   if (!window.YT) {
@@ -1227,7 +1242,7 @@ function initYouTubePlayer() {
   const checkAPI = setInterval(() => {
     if (window.YT && window.YT.Player) {
       clearInterval(checkAPI);
-      createYouTubePlayer(playerDiv);
+      createYouTubePlayer(playerDiv, videoId, isShorts);
     }
   }, 100);
 
@@ -1235,8 +1250,8 @@ function initYouTubePlayer() {
   setTimeout(() => clearInterval(checkAPI), 5000);
 }
 
-function createYouTubePlayer(playerDiv) {
-  const { videoId, isShorts } = window.ytPlayerData;
+function createYouTubePlayer(playerDiv, videoId, isShorts) {
+  console.log('Creating YouTube player:', { videoId, isShorts });
 
   // 자막 끄기 함수
   function disableCaptions() {
@@ -1260,6 +1275,7 @@ function createYouTubePlayer(playerDiv) {
     },
     events: {
       onReady: (e) => {
+        console.log('Player ready');
         disableCaptions();
       },
       onStateChange: (e) => {
@@ -1333,6 +1349,51 @@ function setupFullscreenButton() {
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
   document.addEventListener('mozfullscreenchange', handleFullscreenChange);
   document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+  // 모바일 자동 전체화면 (가로 방향)
+  const handleOrientationChange = async () => {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile && isLandscape) {
+      // 가로 방향이고 전체화면이 아니면 진입
+      if (!document.fullscreenElement && !playerWrap.classList.contains('pseudo-fs')) {
+        try {
+          const requestFullscreenMethod =
+            playerWrap.requestFullscreen ||
+            playerWrap.webkitRequestFullscreen ||
+            playerWrap.mozRequestFullScreen ||
+            playerWrap.msRequestFullscreen;
+
+          if (requestFullscreenMethod) {
+            await requestFullscreenMethod.call(playerWrap);
+            return;
+          }
+        } catch (err) {
+          console.warn('Fullscreen API not supported:', err);
+        }
+
+        // 실패하면 CSS 대체 모드
+        playerWrap.classList.add('pseudo-fs');
+        document.body.classList.add('focus-shorts');
+      }
+    } else if (!isLandscape) {
+      // 세로 방향이면 전체화면 해제
+      try {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      } catch (err) {
+        console.warn('Fullscreen exit failed:', err);
+      }
+      playerWrap.classList.remove('pseudo-fs');
+      document.body.classList.remove('focus-shorts');
+    }
+  };
+
+  // 화면 회전 감시
+  window.addEventListener('orientationchange', handleOrientationChange);
+  window.addEventListener('resize', handleOrientationChange);
 }
 
 function closePartDetailModal(lessonModal) {

@@ -199,15 +199,12 @@ export function renderPartDetailModal(part) {
       <!-- 영상 컨테이너 -->
       <div class="flex-1 w-full h-full flex items-center justify-center bg-black overflow-hidden">
         ${part.youtubeId ? `
-          <div id="playerWrap">
+          <div id="playerWrap" data-video-id="${part.youtubeId}" data-is-shorts="${part.isShorts === true}">
             <div id="ytPlayer"></div>
             <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all cursor-pointer" title="전체화면">
               <span class="material-symbols-outlined text-[24px]">fullscreen</span>
             </button>
           </div>
-          <script>
-            window.ytPlayerData = { videoId: '${part.youtubeId}', isShorts: ${part.isShorts === true} };
-          </script>
         ` : `
           <div class="text-center text-on-surface-variant">
             <span class="material-symbols-outlined text-[48px]">video_library</span>
