@@ -482,9 +482,11 @@ function showCourseDetailModal(course) {
       <!-- 차시 목록 -->
       <div id="lessons-container" class="flex flex-col gap-3 mt-4">
         <h3 class="font-label-md text-label-md text-on-surface font-bold">차시 목록</h3>
-        <div id="lessons-list" class="flex items-center justify-center py-8 text-on-surface-variant">
-          <span class="material-symbols-outlined text-[24px] mr-2">hourglass_empty</span>
-          <span>차시 목록 로드 중...</span>
+        <div id="lessons-list" class="flex flex-col gap-2 overflow-y-auto max-h-[40vh]">
+          <div class="flex items-center justify-center py-8 text-on-surface-variant">
+            <span class="material-symbols-outlined text-[24px] mr-2">hourglass_empty</span>
+            <span>차시 목록 로드 중...</span>
+          </div>
         </div>
       </div>
 
