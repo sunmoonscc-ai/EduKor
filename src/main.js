@@ -1140,7 +1140,7 @@ function renderCoursesList(courses) {
         </span>
       </div>
 
-      <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${course.description}</p>
+      <p class="font-body-sm text-body-sm text-on-surface-variant whitespace-pre-line break-words">${course.description}</p>
 
       <div class="flex gap-2 mt-2">
         <button class="flex-1 h-10 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer hover:bg-primary/90 transition-colors btn-edit-course" data-course-id="${course.id}">

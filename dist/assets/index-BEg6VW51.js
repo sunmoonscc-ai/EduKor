@@ -1042,23 +1042,23 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
 
               <div>
                 <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">파트 이름 *</label>
-                <input type="text" id="input-part-name" placeholder="예: 한글 발음 연습" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors text-sm" required>
+                <input type="text" id="input-part-name" placeholder="예: 한글 발음 연습" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">YouTube ID *</label>
-                  <input type="text" id="input-part-youtube-id" placeholder="dQw4w9WgXcQ" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors text-sm" required>
+                  <input type="text" id="input-part-youtube-id" placeholder="dQw4w9WgXcQ" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
                 </div>
                 <div>
                   <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">소요 시간 (분) *</label>
-                  <input type="number" id="input-part-duration" placeholder="5" min="1" max="120" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors text-sm" required>
+                  <input type="number" id="input-part-duration" placeholder="5" min="1" max="120" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
                 </div>
               </div>
 
               <div>
                 <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">설명</label>
-                <textarea id="input-part-description" placeholder="이 파트에 대한 설명" class="w-full h-16 px-3 py-2 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors resize-none text-sm"></textarea>
+                <textarea id="input-part-description" placeholder="이 파트에 대한 설명" class="w-full h-16 px-3 py-2 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors resize-none text-sm"></textarea>
               </div>
 
               <div class="flex gap-2 justify-end">
@@ -1090,13 +1090,13 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
           <!-- 강의명 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">강의명 *</label>
-            <input type="text" id="input-course-title" placeholder="예: 한글 자음과 모음" class="w-full h-12 px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors" required>
+            <input type="text" id="input-course-title" placeholder="예: 한글 자음과 모음" class="w-full h-12 px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors" required>
           </div>
 
           <!-- 강의 설명 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">강의 설명 *</label>
-            <textarea id="input-course-description" placeholder="강의에 대한 설명을 입력하세요" class="w-full h-24 px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors resize-none" required></textarea>
+            <textarea id="input-course-description" placeholder="강의에 대한 설명을 입력하세요" class="w-full h-24 px-4 py-3 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors resize-none" required></textarea>
           </div>
 
           <!-- 대상 수준 -->
@@ -1113,13 +1113,13 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
           <!-- 총 차시 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">총 차시 *</label>
-            <input type="number" id="input-course-lessons" placeholder="10" min="1" max="50" class="w-full h-12 px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors" required>
+            <input type="number" id="input-course-lessons" placeholder="10" min="1" max="50" class="w-full h-12 px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors" required>
           </div>
 
           <!-- 강사명 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">강사명</label>
-            <input type="text" id="input-course-instructor" placeholder="강사명을 입력하세요" class="w-full h-12 px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors">
+            <input type="text" id="input-course-instructor" placeholder="강사명을 입력하세요" class="w-full h-12 px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors">
           </div>
 
           <!-- 버튼 -->
@@ -1150,25 +1150,25 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
           <!-- 차시 번호 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">차시 번호 *</label>
-            <input type="number" id="input-lesson-number" placeholder="1" min="1" max="100" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors text-sm" required>
+            <input type="number" id="input-lesson-number" placeholder="1" min="1" max="100" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors text-sm" required>
           </div>
 
           <!-- 차시 제목 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">차시 제목 *</label>
-            <input type="text" id="input-lesson-title" placeholder="예: 한글의 기초: 모음" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors text-sm" required>
+            <input type="text" id="input-lesson-title" placeholder="예: 한글의 기초: 모음" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors text-sm" required>
           </div>
 
           <!-- 수업 목표 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">수업 목표 *</label>
-            <textarea id="input-lesson-goal" placeholder="모음 6개를 듣고, 말하고, 쓸 수 있어요. / I can hear, say, and write 6 vowels." class="w-full h-20 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors resize-none text-sm" required></textarea>
+            <textarea id="input-lesson-goal" placeholder="모음 6개를 듣고, 말하고, 쓸 수 있어요. / I can hear, say, and write 6 vowels." class="w-full h-20 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors resize-none text-sm" required></textarea>
           </div>
 
           <!-- 배울 글자 -->
           <div>
             <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">배울 글자 *</label>
-            <input type="text" id="input-lesson-letters" placeholder="ㅏ ㅓ ㅗ ㅜ ㅡ ㅣ (+ 소리 없는 ㅇ)" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant outline-none focus:border-secondary transition-colors text-sm" required>
+            <input type="text" id="input-lesson-letters" placeholder="ㅏ ㅓ ㅗ ㅜ ㅡ ㅣ (+ 소리 없는 ㅇ)" class="w-full h-10 sm:h-12 px-3 sm:px-4 rounded-xl border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-secondary transition-colors text-sm" required>
           </div>
 
           <!-- 버튼 -->
@@ -1447,7 +1447,7 @@ Total Duration: ${c-l}ms`),K.resolve({didRun:!0,sequenceNumbersCollected:r,targe
         </span>
       </div>
 
-      <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${e.description}</p>
+      <p class="font-body-sm text-body-sm text-on-surface-variant whitespace-pre-line break-words">${e.description}</p>
 
       <div class="flex gap-2 mt-2">
         <button class="flex-1 h-10 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer hover:bg-primary/90 transition-colors btn-edit-course" data-course-id="${e.id}">
