@@ -613,6 +613,8 @@ async function showLessonDetail(lesson) {
         // 차시 모달이 열려있으면 닫기
         if (lessonModal && !lessonModal.classList.contains('hidden')) {
           lessonModal.remove();
+          // 차시 모달 닫혔으므로 메인 페이지로 돌아가지 않도록 URL 유지
+          window.history.pushState(null, '');
           return;
         }
 
