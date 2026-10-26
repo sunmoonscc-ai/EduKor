@@ -1402,25 +1402,46 @@ Total Duration: ${c-l}ms`),K.resolve({didRun:!0,sequenceNumbersCollected:r,targe
         <p class="font-body-md text-on-surface-variant">새 차시 버튼을 클릭해서 차시를 추가하세요</p>
       </div>
     `;return}t.innerHTML=e.map(e=>`
-    <div class="bg-surface-container-lowest rounded-2xl border border-surface-container p-4 flex flex-col gap-3 hover:shadow-md transition-shadow cursor-pointer lesson-card" data-lesson-id="${e.id}">
-      <div class="flex items-start justify-between gap-2">
-        <div class="flex-1">
-          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">차시 ${e.lessonNumber}</h3>
-          <h4 class="font-label-md text-label-md text-on-surface-variant mt-1">${e.title}</h4>
+    <div class="flex flex-col gap-0">
+      <!-- 차시 카드 -->
+      <div class="bg-surface-container-lowest rounded-t-2xl border border-surface-container border-b-0 p-4 flex flex-col gap-3 hover:shadow-md transition-shadow cursor-pointer lesson-card" data-lesson-id="${e.id}">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1">
+            <h3 class="font-headline-md text-headline-md text-on-surface font-bold">차시 ${e.lessonNumber}</h3>
+            <h4 class="font-label-md text-label-md text-on-surface-variant mt-1">${e.title}</h4>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button class="px-2 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm cursor-pointer hover:bg-surface-container-high btn-edit-lesson" data-lesson-id="${e.id}">
+              편집
+            </button>
+            <button class="px-2 py-1 rounded-lg bg-error/10 text-error font-label-sm text-label-sm cursor-pointer hover:bg-error/20 btn-delete-lesson" data-lesson-id="${e.id}">
+              삭제
+            </button>
+          </div>
         </div>
-        <div class="flex gap-2 flex-shrink-0">
-          <button class="px-2 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm cursor-pointer hover:bg-surface-container-high btn-edit-lesson" data-lesson-id="${e.id}">
-            편집
-          </button>
-          <button class="px-2 py-1 rounded-lg bg-error/10 text-error font-label-sm text-label-sm cursor-pointer hover:bg-error/20 btn-delete-lesson" data-lesson-id="${e.id}">
-            삭제
-          </button>
-        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${e.goal}</p>
+        <p class="font-label-sm text-on-surface-variant">배울 글자: ${e.learnLetters}</p>
       </div>
-      <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${e.goal}</p>
-      <p class="font-label-sm text-on-surface-variant">배울 글자: ${e.learnLetters}</p>
+
+      <!-- 파트 관리 섹션 (숨김) -->
+      <div class="lesson-parts-section hidden bg-primary/5 border border-surface-container border-t-0 rounded-b-2xl p-4 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">파트 관리</h4>
+          <button class="px-3 py-1 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold cursor-pointer hover:bg-primary/90 transition-colors btn-add-part" data-lesson-id="${e.id}">
+            + 파트 추가
+          </button>
+        </div>
+        <div class="lesson-parts-list text-sm text-on-surface-variant">파트가 없습니다</div>
+      </div>
     </div>
-  `).join(``),console.log(`🎨 HTML 렌더링 완료, 이벤트 바인드 시작...`);let n=t.querySelectorAll(`.lesson-card`);console.log(`📌 차시 카드 개수:`,n.length),n.forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.dataset.lessonId,n=hC.find(e=>e.id===t);n&&(pC=t,await bC(n),document.getElementById(`parts-management-section`)?.classList.remove(`hidden`),document.getElementById(`selected-lesson-title`).textContent=`${n.lessonNumber}. ${n.title}`)})}),t.querySelectorAll(`.btn-edit-lesson`).forEach(e=>{e.addEventListener(`click`,t=>{t.stopPropagation();let n=e.dataset.lessonId,r=hC.find(e=>e.id===n);r&&EC(r)})}),t.querySelectorAll(`.btn-delete-lesson`).forEach(e=>{e.addEventListener(`click`,async t=>{t.stopPropagation();let n=e.dataset.lessonId,r=hC.find(e=>e.id===n);if(r&&confirm(`"${r.title}" 차시를 삭제하시겠습니까?`))try{(await bS(n)).success?($(`차시가 삭제되었습니다.`,`success`),await vC()):$(`차시 삭제에 실패했습니다.`,`error`)}catch(e){console.error(`❌ 차시 삭제 실패:`,e),$(`차시 삭제 중 오류가 발생했습니다.`,`error`)}})})}async function bC(e){try{gC=await CS(e.id),xC(gC)}catch(e){console.error(`❌ 파트 목록 로드 실패:`,e),$(`파트 목록을 불러올 수 없습니다.`,`error`)}}function xC(e){let t=document.getElementById(`parts-list`);t&&(e.length===0?t.innerHTML=`<div class="text-center py-8 text-on-surface-variant">파트가 없습니다</div>`:(t.innerHTML=e.map(e=>`
+  `).join(``),console.log(`🎨 HTML 렌더링 완료, 이벤트 바인드 시작...`);let n=t.querySelectorAll(`.lesson-card`);console.log(`📌 차시 카드 개수:`,n.length),n.forEach(e=>{e.addEventListener(`click`,async t=>{if(t.target.closest(`button`))return;let n=e.dataset.lessonId,r=hC.find(e=>e.id===n),i=e.parentElement.querySelector(`.lesson-parts-section`);i.classList.contains(`hidden`)?r&&(pC=n,await bC(r,i),i.classList.remove(`hidden`)):i.classList.add(`hidden`)})}),t.querySelectorAll(`.btn-edit-lesson`).forEach(e=>{e.addEventListener(`click`,t=>{t.stopPropagation();let n=e.dataset.lessonId,r=hC.find(e=>e.id===n);r&&EC(r)})}),t.querySelectorAll(`.btn-delete-lesson`).forEach(e=>{e.addEventListener(`click`,async t=>{t.stopPropagation();let n=e.dataset.lessonId,r=hC.find(e=>e.id===n);if(r&&confirm(`"${r.title}" 차시를 삭제하시겠습니까?`))try{(await bS(n)).success?($(`차시가 삭제되었습니다.`,`success`),await vC()):$(`차시 삭제에 실패했습니다.`,`error`)}catch(e){console.error(`❌ 차시 삭제 실패:`,e),$(`차시 삭제 중 오류가 발생했습니다.`,`error`)}})})}async function bC(e,t){try{if(gC=await CS(e.id),t){let e=t.querySelector(`.lesson-parts-list`);e.innerHTML=gC.length===0?`<div class="text-sm text-on-surface-variant">파트가 없습니다</div>`:gC.map(e=>`
+          <div class="flex items-center justify-between text-sm">
+            <span>${e.partName} (${e.duration}분)</span>
+            <button class="px-2 py-1 text-xs bg-primary/10 text-primary rounded cursor-pointer hover:bg-primary/20 btn-edit-part" data-part-id="${e.id}">
+              편집
+            </button>
+          </div>
+        `).join(``)}else xC(gC)}catch(e){console.error(`❌ 파트 목록 로드 실패:`,e),$(`파트 목록을 불러올 수 없습니다.`,`error`)}}function xC(e){let t=document.getElementById(`parts-list`);t&&(e.length===0?t.innerHTML=`<div class="text-center py-8 text-on-surface-variant">파트가 없습니다</div>`:(t.innerHTML=e.map(e=>`
     <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between gap-3">
       <div class="flex-1">
         <h4 class="font-label-md text-label-md text-on-surface font-bold">${e.partName}</h4>
