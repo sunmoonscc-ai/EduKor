@@ -599,10 +599,15 @@ async function showLessonDetail(lesson) {
       // 백 버튼 처리 (파트 모달만 처리)
       const handleLessonPopState = (e) => {
         const partModal = document.getElementById('modal-part-detail');
+        const lessonModal = document.getElementById('modal-lesson-detail');
 
-        // 파트 모달이 열려있으면 X 버튼과 같이 닫기
+        // 파트 모달이 열려있으면 닫기
         if (partModal && !partModal.classList.contains('hidden')) {
-          closePartDetailModal(document.getElementById('modal-lesson-detail'), true);
+          closePartDetailModal(lessonModal, true);
+          // 차시 모달이 있으면 상태 유지
+          if (lessonModal && !lessonModal.classList.contains('hidden')) {
+            window.history.pushState(null, '');
+          }
         }
       };
 
