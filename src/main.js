@@ -1217,13 +1217,17 @@ function showPartDetailModal(part) {
 
   window.addEventListener('popstate', handlePopState);
 
-  // 9:16 쇼츠 영상이 아닌 경우 전체화면 버튼 숨기기
+  // 9:16 쇼츠 영상 처리
   setTimeout(() => {
     const playerWrap = document.getElementById('playerWrap');
     const fsBtn = document.getElementById('fsBtn');
     if (playerWrap && fsBtn) {
       const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
-      if (!isShorts) {
+      if (isShorts) {
+        // 9:16 쇼츠: 자동으로 전체화면 상태로 표시
+        playerWrap.classList.add('pseudo-fs');
+        document.body.classList.add('focus-shorts');
+      } else {
         // 16:9 일반 영상: 버튼 숨기기
         fsBtn.style.display = 'none';
       }
@@ -1396,6 +1400,9 @@ function closePartDetailModal(lessonModal, fromBackButton = false) {
     modal.classList.add('hidden');
     setTimeout(() => modal.remove(), 300);
   }
+
+  // 쇼츠 전체화면 상태 해제
+  document.body.classList.remove('focus-shorts');
 
   // 차시 상세 모달 다시 표시
   if (lessonModal) {
