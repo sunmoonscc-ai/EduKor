@@ -778,9 +778,14 @@ function renderLessonsList(lessons) {
           <h3 class="font-headline-md text-headline-md text-on-surface font-bold">차시 ${lesson.lessonNumber}</h3>
           <h4 class="font-label-md text-label-md text-on-surface-variant mt-1">${lesson.title}</h4>
         </div>
-        <button class="px-2 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm cursor-pointer hover:bg-surface-container-high btn-edit-lesson" data-lesson-id="${lesson.id}">
-          편집
-        </button>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="px-2 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm cursor-pointer hover:bg-surface-container-high btn-edit-lesson" data-lesson-id="${lesson.id}">
+            편집
+          </button>
+          <button class="px-2 py-1 rounded-lg bg-error/10 text-error font-label-sm text-label-sm cursor-pointer hover:bg-error/20 btn-delete-lesson" data-lesson-id="${lesson.id}">
+            삭제
+          </button>
+        </div>
       </div>
       <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${lesson.goal}</p>
       <p class="font-label-sm text-on-surface-variant">배울 글자: ${lesson.learnLetters}</p>
@@ -813,6 +818,29 @@ function renderLessonsList(lessons) {
       const lesson = allLessonsForSelectedCourse.find(l => l.id === lessonId);
       if (lesson) {
         showLessonModal(lesson);
+      }
+    });
+  });
+
+  // 삭제 버튼
+  container.querySelectorAll('.btn-delete-lesson').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const lessonId = btn.dataset.lessonId;
+      const lesson = allLessonsForSelectedCourse.find(l => l.id === lessonId);
+      if (lesson && confirm(`"${lesson.title}" 차시를 삭제하시겠습니까?`)) {
+        try {
+          const result = await deleteTeachingLesson(lessonId);
+          if (result.success) {
+            showToast('차시가 삭제되었습니다.', 'success');
+            await loadLessonsForSelectedCourse();
+          } else {
+            showToast('차시 삭제에 실패했습니다.', 'error');
+          }
+        } catch (error) {
+          console.error('❌ 차시 삭제 실패:', error);
+          showToast('차시 삭제 중 오류가 발생했습니다.', 'error');
+        }
       }
     });
   });
@@ -892,6 +920,7 @@ function showPartForm(part = null) {
     form.reset();
   }
 
+  window.scrollTo(0, 0);
   form.classList.remove('hidden');
 }
 
@@ -988,6 +1017,8 @@ function showLessonModal(lesson = null) {
     delete form.dataset.lessonId;
   }
 
+  // 스크롤을 맨 위로 올린 후 모달 표시
+  window.scrollTo(0, 0);
   modal.classList.remove('hidden');
 }
 
@@ -1162,6 +1193,7 @@ function showCourseModal(course = null) {
     delete form.dataset.courseId;
   }
 
+  window.scrollTo(0, 0);
   modal.classList.remove('hidden');
 }
 
