@@ -1272,11 +1272,12 @@ function createYouTubePlayer(playerDiv, videoId, isShorts) {
       fs: 1,
       origin: window.location.origin,
       autoplay: 1,
-      mute: 1, // 모바일에서 자동재생 가능하게 음소거
     },
     events: {
       onReady: (e) => {
         console.log('Player ready, starting autoplay');
+        // 음소거 해제 (음성 켜기)
+        e.target.unMute();
         disableCaptions();
         // 자동 재생 시작
         setTimeout(() => {
@@ -1287,6 +1288,10 @@ function createYouTubePlayer(playerDiv, videoId, isShorts) {
         // PLAYING 상태에서 자막 재확인 (나중에 로드되는 경우 대비)
         if (e.data === YT.PlayerState.PLAYING) {
           disableCaptions();
+          // 음소거 상태면 해제
+          if (e.target.isMuted && e.target.isMuted()) {
+            e.target.unMute();
+          }
         }
         // ENDED 상태에서 반복 재생
         if (e.data === YT.PlayerState.ENDED) {
