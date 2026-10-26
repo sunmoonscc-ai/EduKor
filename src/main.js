@@ -1273,6 +1273,15 @@ function showPartDetailModal(part) {
     console.log('🎬 렌더링됨 - data-is-shorts:', dataIsShorts);
   }, 200);
 
+  // 쇼츠 영상이면 처음부터 전체화면 상태로 표시
+  const playerWrap = document.getElementById('playerWrap');
+  const isShorts = playerWrap?.getAttribute('data-is-shorts') === 'true';
+
+  if (isShorts) {
+    playerWrap.classList.add('pseudo-fs');
+    document.body.classList.add('focus-shorts');
+  }
+
   // 팝업 스택에 추가
   modalStack.push('part');
 
@@ -1290,29 +1299,16 @@ function showPartDetailModal(part) {
     }
   });
 
-  // 배경(검은색) 클릭 시 닫기
-  modal?.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      if (window.history.state?.modalDepth > 0) {
-        window.history.back();
+  // 배경(검은색) 클릭 시 닫기 (쇼츠가 아닐 때만, 쇼츠는 전체화면이라 배경 없음)
+  if (!isShorts) {
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        if (window.history.state?.modalDepth > 0) {
+          window.history.back();
+        }
       }
-    }
-  });
-
-  // 9:16 쇼츠 영상 처리
-  setTimeout(() => {
-    const playerWrap = document.getElementById('playerWrap');
-
-    if (playerWrap) {
-      const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
-
-      if (isShorts) {
-        // 9:16 쇼츠: 자동으로 전체화면 상태로 표시
-        playerWrap.classList.add('pseudo-fs');
-        document.body.classList.add('focus-shorts');
-      }
-    }
-  }, 50);
+    });
+  }
 
   // YouTube IFrame Player API 초기화
   setTimeout(() => {
