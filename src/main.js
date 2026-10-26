@@ -1189,6 +1189,12 @@ function closeLessonModal() {
 }
 
 function showPartDetailModal(part) {
+  // YouTube URL 기반으로 isShorts 판단
+  if (part.youtubeId) {
+    // youtubeId가 shorts URL이면 9:16, 아니면 16:9
+    part.isShorts = part.youtubeId.toLowerCase().includes('shorts');
+  }
+
   const modalHTML = renderPartDetailModal(part);
 
   // 차시 상세 모달 숨기기 (제거하지 않음)
