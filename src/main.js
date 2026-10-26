@@ -1200,6 +1200,56 @@ function showPartDetailModal(part) {
       closePartDetailModal(lessonModal);
     }
   });
+
+  // 쇼츠 전체화면 버튼 이벤트
+  setTimeout(() => {
+    const fsBtn = document.getElementById('fsBtn');
+    const playerWrap = document.getElementById('playerWrap');
+
+    if (fsBtn && playerWrap) {
+      fsBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+
+        // 이미 전체화면이면 해제
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+          return;
+        }
+
+        if (playerWrap.classList.contains('pseudo-fs')) {
+          playerWrap.classList.remove('pseudo-fs');
+          document.body.classList.remove('focus-shorts');
+          return;
+        }
+
+        // 진짜 전체화면 시도
+        try {
+          if (playerWrap.requestFullscreen) {
+            await playerWrap.requestFullscreen();
+            return;
+          }
+          if (playerWrap.webkitRequestFullscreen) {
+            playerWrap.webkitRequestFullscreen();
+            return;
+          }
+        } catch (e) {
+          console.warn('Fullscreen API not supported:', e);
+        }
+
+        // 지원 안 되면 CSS 대체 모드
+        playerWrap.classList.add('pseudo-fs');
+        document.body.classList.add('focus-shorts');
+      });
+
+      // fullscreen 변화 감시
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement && playerWrap.classList.contains('pseudo-fs')) {
+          playerWrap.classList.remove('pseudo-fs');
+          document.body.classList.remove('focus-shorts');
+        }
+      });
+    }
+  }, 100);
 }
 
 function closePartDetailModal(lessonModal) {

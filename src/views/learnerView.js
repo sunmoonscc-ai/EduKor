@@ -200,16 +200,20 @@ export function renderPartDetailModal(part) {
       <div class="flex-1 w-full h-full flex items-center justify-center bg-black overflow-hidden">
         ${part.youtubeId ? `
           ${part.isShorts === true ? `
-            <!-- YouTube Shorts: 9:16 세로 비율 -->
-            <div style="width: auto; height: 100%; aspect-ratio: 9/16; background: #000; overflow: hidden;">
+            <!-- YouTube Shorts: 9:16 세로 비율 + 커스텀 전체화면 -->
+            <div id="playerWrap" class="relative w-auto h-full aspect-video" style="aspect-ratio: 9/16; max-height: 100vh; background: #000;">
               <iframe
+                id="shortPlayer"
                 style="width: 100%; height: 100%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&loop=1&playlist=${part.youtubeId}&rel=0&modestbranding=1"
+                src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&rel=0&modestbranding=1"
                 frameborder="0"
                 title="YouTube Shorts"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
                 allowfullscreen>
               </iframe>
+              <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all" title="전체화면">
+                <span class="material-symbols-outlined text-[24px]">fullscreen</span>
+              </button>
             </div>
           ` : `
             <!-- 일반 YouTube: 16:9 가로 비율 (전체 화면) -->
@@ -229,6 +233,37 @@ export function renderPartDetailModal(part) {
           </div>
         `}
       </div>
+
+      <style>
+        #playerWrap:fullscreen,
+        #playerWrap.pseudo-fs {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100dvh;
+          max-height: none;
+          aspect-ratio: auto;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
+        #playerWrap:fullscreen #shortPlayer,
+        #playerWrap.pseudo-fs #shortPlayer {
+          height: 100%;
+          width: auto;
+          aspect-ratio: 9/16;
+          max-width: 100%;
+        }
+        body.focus-shorts header,
+        body.focus-shorts nav,
+        body.focus-shorts footer {
+          display: none !important;
+        }
+        body.focus-shorts {
+          overflow: hidden;
+        }
+      </style>
     </div>
   `;
 }
