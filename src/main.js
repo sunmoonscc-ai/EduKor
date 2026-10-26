@@ -1271,12 +1271,17 @@ function createYouTubePlayer(playerDiv, videoId, isShorts) {
       iv_load_policy: 3,
       fs: 1,
       origin: window.location.origin,
-      autoplay: 0,
+      autoplay: 1,
+      mute: 1, // 모바일에서 자동재생 가능하게 음소거
     },
     events: {
       onReady: (e) => {
-        console.log('Player ready');
+        console.log('Player ready, starting autoplay');
         disableCaptions();
+        // 자동 재생 시작
+        setTimeout(() => {
+          e.target.playVideo();
+        }, 500);
       },
       onStateChange: (e) => {
         // PLAYING 상태에서 자막 재확인 (나중에 로드되는 경우 대비)
@@ -1349,51 +1354,6 @@ function setupFullscreenButton() {
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
   document.addEventListener('mozfullscreenchange', handleFullscreenChange);
   document.addEventListener('msfullscreenchange', handleFullscreenChange);
-
-  // 모바일 자동 전체화면 (가로 방향)
-  const handleOrientationChange = async () => {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    if (isMobile && isLandscape) {
-      // 가로 방향이고 전체화면이 아니면 진입
-      if (!document.fullscreenElement && !playerWrap.classList.contains('pseudo-fs')) {
-        try {
-          const requestFullscreenMethod =
-            playerWrap.requestFullscreen ||
-            playerWrap.webkitRequestFullscreen ||
-            playerWrap.mozRequestFullScreen ||
-            playerWrap.msRequestFullscreen;
-
-          if (requestFullscreenMethod) {
-            await requestFullscreenMethod.call(playerWrap);
-            return;
-          }
-        } catch (err) {
-          console.warn('Fullscreen API not supported:', err);
-        }
-
-        // 실패하면 CSS 대체 모드
-        playerWrap.classList.add('pseudo-fs');
-        document.body.classList.add('focus-shorts');
-      }
-    } else if (!isLandscape) {
-      // 세로 방향이면 전체화면 해제
-      try {
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-        }
-      } catch (err) {
-        console.warn('Fullscreen exit failed:', err);
-      }
-      playerWrap.classList.remove('pseudo-fs');
-      document.body.classList.remove('focus-shorts');
-    }
-  };
-
-  // 화면 회전 감시
-  window.addEventListener('orientationchange', handleOrientationChange);
-  window.addEventListener('resize', handleOrientationChange);
 }
 
 function closePartDetailModal(lessonModal) {
