@@ -1249,8 +1249,8 @@ function showPartDetailModal(part) {
 }
 
 function initYouTubePlayer() {
-  const playerDiv = document.getElementById('ytPlayer');
   const playerWrap = document.getElementById('playerWrap');
+  const playerDiv = playerWrap ? playerWrap.querySelector('#ytPlayer') : null;
 
   if (!playerDiv || !playerWrap) {
     console.error('Player elements not found');
