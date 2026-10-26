@@ -2,7 +2,7 @@
  * main.js — 한누리 한국어학당 앱 진입점 & 라우터
  */
 import { renderLandingView } from './views/landingView.js';
-import { renderLearnerView, renderLessonDetailModal } from './views/learnerView.js';
+import { renderLearnerView, renderLessonDetailModal, renderPartDetailModal } from './views/learnerView.js';
 import { renderEducatorView } from './views/educatorView.js';
 import { renderAdminView } from './views/adminView.js';
 import { renderUserManagementView, renderUserCard } from './views/userManagementView.js';
@@ -563,6 +563,9 @@ async function showLessonDetail(lesson) {
     // 모달 HTML 생성
     const modalHTML = renderLessonDetailModal(lesson, parts);
 
+    // 파트 정보 저장 (아코디언 클릭 시 사용)
+    window.currentLessonPartsForModal = parts;
+
     // 뷰에 모달 추가
     viewRoot.insertAdjacentHTML('afterend', modalHTML);
 
@@ -580,22 +583,15 @@ async function showLessonDetail(lesson) {
         modal.remove();
       });
 
-      // 파트 아코디언 이벤트
+      // 파트 아코디언 이벤트 - 클릭 시 전체화면 모달 띄우기
       document.querySelectorAll('.lesson-part-accordion-header').forEach(header => {
-        header.addEventListener('click', () => {
-          const accordion = header.parentElement;
-          const body = accordion.querySelector('.lesson-part-accordion-body');
-          const icon = header.querySelector('.accordion-icon');
-          const isOpen = !body.classList.contains('hidden');
-
-          if (isOpen) {
-            // 닫기
-            body.classList.add('hidden');
-            icon.style.transform = 'rotate(0deg)';
-          } else {
-            // 열기
-            body.classList.remove('hidden');
-            icon.style.transform = 'rotate(180deg)';
+        header.addEventListener('click', (e) => {
+          e.preventDefault();
+          const partId = header.getAttribute('data-part-id');
+          const parts = window.currentLessonPartsForModal || [];
+          const part = parts.find(p => p.id === partId);
+          if (part) {
+            showPartDetailModal(part);
           }
         });
       });
@@ -1171,6 +1167,33 @@ function showLessonModal(lesson = null) {
 function closeLessonModal() {
   const modal = document.getElementById('modal-lesson-form');
   modal?.classList.add('hidden');
+}
+
+function showPartDetailModal(part) {
+  const viewRoot = document.getElementById('view-root');
+  const modalHTML = renderPartDetailModal(part);
+
+  // 모달을 뷰 루트에 추가 (이미 모달이 있으면 제거)
+  let modal = document.getElementById('modal-part-detail');
+  if (modal) {
+    modal.remove();
+  }
+
+  viewRoot.insertAdjacentHTML('beforeend', modalHTML);
+  modal = document.getElementById('modal-part-detail');
+  modal?.classList.remove('hidden');
+
+  // 닫기 버튼 이벤트
+  document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
+    modal?.classList.add('hidden');
+    setTimeout(() => modal?.remove(), 300);
+  });
+
+  // 오버레이 클릭 시 닫기
+  document.getElementById('modal-part-detail-overlay')?.addEventListener('click', () => {
+    modal?.classList.add('hidden');
+    setTimeout(() => modal?.remove(), 300);
+  });
 }
 
 async function handleLessonSubmit(e) {

@@ -181,3 +181,75 @@ export function renderLessonDetailModal(lesson, parts = []) {
     </div>
   `;
 }
+
+/**
+ * 파트 상세 전체화면 모달
+ */
+export function renderPartDetailModal(part) {
+  return `
+    <div id="modal-part-detail" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-2 sm:p-4">
+      <div class="absolute inset-0 bg-black/80" id="modal-part-detail-overlay"></div>
+      <div class="relative w-full h-full max-w-6xl max-h-[95vh] bg-surface-container-lowest rounded-2xl sm:rounded-3xl shadow-xl border border-surface-container p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto">
+        <!-- 헤더 -->
+        <div class="flex items-center justify-between gap-2 sticky top-0 bg-surface-container-lowest z-10 pb-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg flex-1 line-clamp-2">${part.partName}</h2>
+          <button class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high flex-shrink-0" id="btn-close-part-detail-modal">
+            <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-on-surface-variant">close</span>
+          </button>
+        </div>
+
+        <!-- 영상 -->
+        ${part.youtubeId ? `
+          <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
+            ${part.isShorts === true ? `
+              <!-- YouTube Shorts: 9:16 비율 -->
+              <div style="position: relative; width: 100%; max-width: 450px; padding-bottom: 177.78%; margin: 0 auto;">
+                <iframe
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                  src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  class="rounded-xl sm:rounded-2xl">
+                </iframe>
+              </div>
+            ` : `
+              <!-- 일반 YouTube: 16:9 비율 -->
+              <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+                <iframe
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                  src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  class="rounded-xl sm:rounded-2xl">
+                </iframe>
+              </div>
+            `}
+          </div>
+        ` : ''}
+
+        <!-- 정보 -->
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 text-on-surface-variant font-label-sm text-label-sm text-xs sm:text-sm">
+          <div class="flex items-center gap-1 whitespace-nowrap">
+            <span class="material-symbols-outlined text-[16px]">access_time</span>
+            <span>⏱️ ${part.duration}분</span>
+          </div>
+          ${part.partType ? `
+            <div class="flex items-center gap-1 whitespace-nowrap">
+              <span class="material-symbols-outlined text-[16px]">category</span>
+              <span>${part.partType}</span>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- 설명 -->
+        ${part.description ? `
+          <div class="border-t border-surface-container pt-3 sm:pt-4">
+            <p class="font-body-sm text-body-sm text-on-surface-variant text-xs sm:text-sm whitespace-pre-line">${part.description}</p>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
