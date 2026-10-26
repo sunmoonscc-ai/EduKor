@@ -574,8 +574,8 @@ async function showLessonDetail(lesson) {
     if (modal) {
       modal.classList.remove('hidden');
 
-      // 히스토리에 차시 모달 상태 추가
-      window.history.pushState({ lessonModalOpen: true }, '');
+      // 히스토리에 차시 모달 상태 추가 (URL 변경 없음)
+      window.history.pushState({ lessonModalOpen: true }, '', window.location.href);
 
       // 닫기 버튼 이벤트
       document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
@@ -1220,8 +1220,8 @@ function showPartDetailModal(part) {
   modal = document.getElementById('modal-part-detail');
   modal?.classList.remove('hidden');
 
-  // 히스토리에 모달 상태 추가 (백 버튼 처리용)
-  window.history.pushState({ partModalOpen: true }, '');
+  // 히스토리에 모달 상태 추가 (백 버튼 처리용, URL 변경 없음)
+  window.history.pushState({ partModalOpen: true }, '', window.location.href);
 
   // 닫기 버튼 이벤트
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
