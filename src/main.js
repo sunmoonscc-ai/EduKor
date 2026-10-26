@@ -1289,6 +1289,8 @@ function createYouTubePlayer(playerDiv, videoId, isShorts) {
     try { window.ytPlayer.unloadModule('captions'); } catch (e) {}
     try { window.ytPlayer.unloadModule('cc'); } catch (e) {}
     try { window.ytPlayer.setOption('captions', 'track', {}); } catch (e) {}
+    try { window.ytPlayer.setOption('captions', 'fontSize', -1); } catch (e) {}
+    try { window.ytPlayer.loadModule('captions', null); } catch (e) {}
   }
 
   window.ytPlayer = new YT.Player(playerDiv, {
