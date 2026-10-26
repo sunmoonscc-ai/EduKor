@@ -271,6 +271,7 @@ export function renderPartDetailModal(part) {
         }
 
         #playerWrap #fsBtn {
+          display: none;
           position: absolute;
           top: 16px;
           right: 16px;
