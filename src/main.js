@@ -613,13 +613,13 @@ async function showLessonDetail(lesson) {
         // 차시 모달이 열려있으면 닫기
         if (lessonModal && !lessonModal.classList.contains('hidden')) {
           lessonModal.remove();
-          // 차시 모달 닫혔으므로 메인 페이지로 돌아가지 않도록 URL 유지
-          window.history.pushState(null, '');
+          // 현재 history entry를 메인 페이지로 교체 (뒤로 가지 않음)
+          window.history.replaceState(null, '');
           return;
         }
 
         // 모든 모달이 닫혀있으면 메인 페이지 유지
-        window.history.pushState(null, '');
+        window.history.replaceState(null, '');
       };
 
       window.addEventListener('popstate', handleLessonPopState);
