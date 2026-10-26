@@ -1173,6 +1173,12 @@ function showPartDetailModal(part) {
   const viewRoot = document.getElementById('view-root');
   const modalHTML = renderPartDetailModal(part);
 
+  // 차시 상세 모달 숨기기
+  const lessonModal = document.getElementById('modal-lesson-detail');
+  if (lessonModal) {
+    lessonModal.classList.add('hidden');
+  }
+
   // 모달을 뷰 루트에 추가 (이미 모달이 있으면 제거)
   let modal = document.getElementById('modal-part-detail');
   if (modal) {
@@ -1186,13 +1192,23 @@ function showPartDetailModal(part) {
   // 닫기 버튼 이벤트
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
     modal?.classList.add('hidden');
+    // 차시 상세 모달 다시 표시
+    if (lessonModal) {
+      lessonModal.classList.remove('hidden');
+    }
     setTimeout(() => modal?.remove(), 300);
   });
 
-  // 오버레이 클릭 시 닫기
-  document.getElementById('modal-part-detail-overlay')?.addEventListener('click', () => {
-    modal?.classList.add('hidden');
-    setTimeout(() => modal?.remove(), 300);
+  // 배경(검은색) 클릭 시 닫기
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+      // 차시 상세 모달 다시 표시
+      if (lessonModal) {
+        lessonModal.classList.remove('hidden');
+      }
+      setTimeout(() => modal?.remove(), 300);
+    }
   });
 }
 

@@ -187,9 +187,8 @@ export function renderLessonDetailModal(lesson, parts = []) {
  */
 export function renderPartDetailModal(part) {
   return `
-    <div id="modal-part-detail" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-2 sm:p-4">
-      <div class="absolute inset-0 bg-black/80" id="modal-part-detail-overlay"></div>
-      <div class="relative w-full h-full max-w-6xl max-h-[95vh] bg-surface-container-lowest rounded-2xl sm:rounded-3xl shadow-xl border border-surface-container p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto">
+    <div id="modal-part-detail" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black">
+      <div class="relative w-full h-full flex flex-col gap-3 sm:gap-4 p-3 sm:p-6 overflow-y-auto">
         <!-- 헤더 -->
         <div class="flex items-center justify-between gap-2 sticky top-0 bg-surface-container-lowest z-10 pb-2">
           <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg flex-1 line-clamp-2">${part.partName}</h2>
