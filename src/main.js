@@ -1273,13 +1273,30 @@ function showPartDetailModal(part) {
     console.log('🎬 렌더링됨 - data-is-shorts:', dataIsShorts);
   }, 200);
 
-  // 쇼츠 영상이면 처음부터 전체화면 상태로 표시
+  // 쇼츠 영상이면 처음부터 진짜 전체화면 상태로 표시 (헤더+영상 모두)
   const playerWrap = document.getElementById('playerWrap');
   const isShorts = playerWrap?.getAttribute('data-is-shorts') === 'true';
 
   if (isShorts) {
-    playerWrap.classList.add('pseudo-fs');
-    document.body.classList.add('focus-shorts');
+    // 쇼츠는 처음부터 모달 전체를 전체화면으로 만들기
+    setTimeout(async () => {
+      try {
+        const requestFullscreenMethod =
+          modal.requestFullscreen ||
+          modal.webkitRequestFullscreen ||
+          modal.mozRequestFullScreen ||
+          modal.msRequestFullscreen;
+
+        if (requestFullscreenMethod) {
+          await requestFullscreenMethod.call(modal);
+        }
+      } catch (err) {
+        console.warn('Fullscreen API not supported:', err);
+        // 폴백: CSS 전체화면
+        playerWrap.classList.add('pseudo-fs');
+        document.body.classList.add('focus-shorts');
+      }
+    }, 100);
   }
 
   // 팝업 스택에 추가
