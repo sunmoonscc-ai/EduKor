@@ -1220,25 +1220,16 @@ function showPartDetailModal(part) {
   // 9:16 쇼츠 영상 처리
   setTimeout(() => {
     const playerWrap = document.getElementById('playerWrap');
-    const fsBtn = document.getElementById('fsBtn');
-    if (playerWrap && fsBtn) {
+    if (playerWrap) {
       const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
-      console.log('isShorts:', isShorts, 'playerWrap:', playerWrap);
+      console.log('isShorts:', isShorts);
 
       if (isShorts) {
         // 9:16 쇼츠: 자동으로 전체화면 상태로 표시
         console.log('Applying pseudo-fs for shorts');
         playerWrap.classList.add('pseudo-fs');
         document.body.classList.add('focus-shorts');
-        // 버튼 보이게 설정
-        fsBtn.style.display = 'block';
-      } else {
-        // 16:9 일반 영상: 버튼 숨기기
-        console.log('Hiding button for non-shorts');
-        fsBtn.style.display = 'none';
       }
-    } else {
-      console.log('playerWrap or fsBtn not found');
     }
   }, 50);
 
