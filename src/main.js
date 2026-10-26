@@ -61,6 +61,11 @@ const navBtns = document.querySelectorAll('.nav-btn');
 
 // ── Router ─────────────────────────────────────────────────────────────────────
 async function navigateTo(view) {
+  // 초기 히스토리 상태 설정 (페이지 전환 시마다 초기화)
+  if (!window.history.state?.initialized) {
+    window.history.replaceState({ initialized: true }, '');
+  }
+
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!currentUser && view !== 'login') {
     view = 'login';
@@ -579,10 +584,18 @@ async function showLessonDetail(lesson) {
 
       // 닫기 버튼 이벤트
       document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
+        // popstate 리스너 제거
+        if (modal.popstateHandler) {
+          window.removeEventListener('popstate', modal.popstateHandler);
+        }
         modal.remove();
       });
 
       document.getElementById('modal-lesson-overlay')?.addEventListener('click', () => {
+        // popstate 리스너 제거
+        if (modal.popstateHandler) {
+          window.removeEventListener('popstate', modal.popstateHandler);
+        }
         modal.remove();
       });
 
@@ -617,8 +630,8 @@ async function showLessonDetail(lesson) {
         }
       };
 
-      // 중복 등록 방지
-      window.removeEventListener('popstate', handleLessonPopState);
+      // popstate 리스너 저장 (나중에 정리할 때 사용)
+      modal.popstateHandler = handleLessonPopState;
       window.addEventListener('popstate', handleLessonPopState);
     }
   } catch (error) {
@@ -1225,13 +1238,22 @@ function showPartDetailModal(part) {
 
   // 닫기 버튼 이벤트
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
-    closePartDetailModal(lessonModal);
+    // history.back() 호출하면 popstate 이벤트 발생 → closePartDetailModal 호출됨
+    if (window.history.state?.partModalOpen) {
+      window.history.back();
+    } else {
+      closePartDetailModal(lessonModal);
+    }
   });
 
   // 배경(검은색) 클릭 시 닫기
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) {
-      closePartDetailModal(lessonModal);
+      if (window.history.state?.partModalOpen) {
+        window.history.back();
+      } else {
+        closePartDetailModal(lessonModal);
+      }
     }
   });
 
@@ -1244,11 +1266,9 @@ function showPartDetailModal(part) {
     }
   };
 
+  // popstate 리스너 저장 (나중에 정리할 때 사용)
+  modal.popstateHandler = handlePopState;
   window.addEventListener('popstate', handlePopState);
-
-  // 언마운트 시 이벤트 리스너 제거 (메모리 누수 방지)
-  const originalClose = closePartDetailModal;
-  window.removeEventListener('popstate', handlePopState);
 
   // 9:16 쇼츠 영상 처리
   setTimeout(() => {
@@ -1430,6 +1450,11 @@ function setupFullscreenButton() {
 function closePartDetailModal(lessonModal, fromBackButton = false) {
   const modal = document.getElementById('modal-part-detail');
   if (modal) {
+    // popstate 리스너 제거
+    if (modal.popstateHandler) {
+      window.removeEventListener('popstate', modal.popstateHandler);
+    }
+
     modal.classList.add('hidden');
     setTimeout(() => modal.remove(), 300);
   }
@@ -1442,7 +1467,7 @@ function closePartDetailModal(lessonModal, fromBackButton = false) {
     lessonModal.classList.remove('hidden');
   }
 
-  // 백 버튼이 아닌 경우에만 히스토리 되돌리기 (백 버튼에서 호출되면 중복 방지)
+  // 백 버튼이 아닌 경우에만 히스토리 처리 (URL 변경 없음)
   if (!fromBackButton && window.history.state?.partModalOpen) {
     window.history.back();
   }
