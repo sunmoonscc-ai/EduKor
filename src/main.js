@@ -599,21 +599,25 @@ async function showLessonDetail(lesson) {
         });
       });
 
-      // 백 버튼 처리
+      // 백 버튼 처리 (모달의 UI 상태로만 판단)
       const handleLessonPopState = (e) => {
         const lessonModal = document.getElementById('modal-lesson-detail');
         const partModal = document.getElementById('modal-part-detail');
 
+        // 파트 모달이 열려있으면 닫기
         if (partModal && !partModal.classList.contains('hidden')) {
-          // 파트 모달이 열려있으면 파트 모달만 닫기
-          closePartDetailModal(modal, true);
-        } else if (lessonModal && !lessonModal.classList.contains('hidden') && !e.state?.lessonModalOpen) {
-          // 차시 모달이 열려있는데 상태가 lessonModalOpen이 아니면 차시 모달 닫기
-          lessonModal.remove();
-        } else {
-          // 모든 모달이 닫혀있으면 메인 페이지 유지 (URL 뒤로 가지 않기)
-          window.history.pushState(null, '');
+          closePartDetailModal(lessonModal, true);
+          return;
         }
+
+        // 차시 모달이 열려있으면 닫기
+        if (lessonModal && !lessonModal.classList.contains('hidden')) {
+          lessonModal.remove();
+          return;
+        }
+
+        // 모든 모달이 닫혀있으면 메인 페이지 유지
+        window.history.pushState(null, '');
       };
 
       window.addEventListener('popstate', handleLessonPopState);
