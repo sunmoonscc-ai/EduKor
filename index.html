@@ -162,11 +162,11 @@
           <span>한국어</span>
           <span class="material-symbols-outlined text-[14px] text-on-surface-variant">expand_more</span>
         </button>
-        <button id="btn-notifications" aria-label="알림" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer">
+        <button id="btn-notifications" aria-label="알림" class="hidden relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer">
           <span class="material-symbols-outlined text-[22px]">notifications</span>
           <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary-container"></span>
         </button>
-        <button id="profile-btn" class="relative flex items-center justify-center pl-1 cursor-pointer hover:opacity-80 transition-opacity">
+        <button id="profile-btn" class="hidden relative flex items-center justify-center pl-1 cursor-pointer hover:opacity-80 transition-opacity">
           <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shadow-[0_1px_4px_rgba(15,23,42,0.12)]">
             <span class="material-symbols-outlined text-[18px] text-on-primary-container">person</span>
           </div>
@@ -187,7 +187,7 @@
   </main>
 
   <!-- ── Bottom Navigation ── -->
-  <nav class="fixed bottom-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-md pb-safe border-t border-surface-container">
+  <nav id="bottom-nav" class="fixed bottom-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-md pb-safe border-t border-surface-container hidden">
     <div class="flex items-center justify-around h-16 px-2">
       <button class="nav-btn flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-all cursor-pointer" data-view="landing" id="nav-landing">
         <span class="material-symbols-outlined text-[24px] nav-icon transition-colors">home</span>
@@ -201,7 +201,7 @@
         <span class="material-symbols-outlined text-[24px] nav-icon transition-colors">co_present</span>
         <span class="font-label-sm text-label-sm nav-label transition-colors">강의실</span>
       </button>
-      <button class="nav-btn flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-all cursor-pointer" data-view="admin" id="nav-admin">
+      <button class="nav-btn flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-all cursor-pointer hidden" data-view="admin" id="nav-admin">
         <span class="material-symbols-outlined text-[24px] nav-icon transition-colors">admin_panel_settings</span>
         <span class="font-label-sm text-label-sm nav-label transition-colors">운영관리</span>
       </button>

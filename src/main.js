@@ -28,6 +28,12 @@ import {
   query,
   orderBy
 } from './firebase.js';
+import {
+  setLanguage,
+  getLanguage,
+  t,
+  getAvailableLanguages
+} from './i18n.js';
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let currentView = 'landing';
@@ -101,10 +107,23 @@ async function navigateTo(view) {
 }
 
 function updateNavActive(view) {
+  const navLabels = {
+    landing: t('nav.explore'),
+    learner: t('nav.learning'),
+    educator: t('nav.classroom'),
+    admin: t('nav.admin')
+  };
+
   navBtns.forEach(btn => {
     const isActive = btn.dataset.view === view;
     const icon = btn.querySelector('.nav-icon');
     const label = btn.querySelector('.nav-label');
+
+    // 메뉴 텍스트 업데이트
+    if (navLabels[btn.dataset.view]) {
+      label.textContent = navLabels[btn.dataset.view];
+    }
+
     if (isActive) {
       icon.classList.replace('text-on-surface-variant', 'text-secondary');
       icon.style.fontVariationSettings = "'FILL' 1";
@@ -117,6 +136,22 @@ function updateNavActive(view) {
       label.classList.remove('text-secondary');
       label.classList.add('text-on-surface-variant');
       btn.classList.remove('bg-secondary-fixed/30');
+    }
+  });
+}
+
+function updateNavLabels() {
+  const navLabels = {
+    landing: t('nav.explore'),
+    learner: t('nav.learning'),
+    educator: t('nav.classroom'),
+    admin: t('nav.admin')
+  };
+
+  navBtns.forEach(btn => {
+    const label = btn.querySelector('.nav-label');
+    if (navLabels[btn.dataset.view]) {
+      label.textContent = navLabels[btn.dataset.view];
     }
   });
 }
@@ -138,6 +173,18 @@ async function initLoginView() {
     if (result.success) {
       currentUser = result.user;
 
+      // 하단 네비게이션 표시
+      const bottomNav = document.getElementById('bottom-nav');
+      if (bottomNav) {
+        bottomNav.classList.remove('hidden');
+      }
+
+      // 알림과 프로필 버튼 표시
+      const notificationsBtn = document.getElementById('btn-notifications');
+      const profileBtn = document.getElementById('profile-btn');
+      if (notificationsBtn) notificationsBtn.classList.remove('hidden');
+      if (profileBtn) profileBtn.classList.remove('hidden');
+
       // 운영관리 메뉴 업데이트
       const adminBtn = document.getElementById('nav-admin');
       if (adminBtn) {
@@ -149,9 +196,9 @@ async function initLoginView() {
       }
 
       if (result.isNewUser) {
-        showToast(`${result.user.name}님, 회원가입을 환영합니다! 🎉`, 'secondary');
+        showToast(t('message.newUser', { name: result.user.name }), 'secondary');
       } else {
-        showToast(`환영합니다, ${result.user.name}!`, 'secondary');
+        showToast(t('message.welcome', { name: result.user.name }), 'secondary');
       }
 
       await navigateTo('landing');
@@ -1190,17 +1237,119 @@ async function handleLogout() {
   const result = await logout();
   if (result.success) {
     currentUser = null;
+
+    // 하단 네비게이션 숨김
+    const bottomNav = document.getElementById('bottom-nav');
+    if (bottomNav) {
+      bottomNav.classList.add('hidden');
+    }
+
     showToast('로그아웃되었습니다.', 'secondary');
     await navigateTo('login');
   }
 }
 
+// ── Language Selector ─────────────────────────────────────────────────────────
+function initLanguageSelector() {
+  const langBtn = document.getElementById('btn-lang');
+  if (!langBtn) return;
+
+  // 언어 버튼 클릭
+  langBtn.addEventListener('click', () => {
+    showLanguageMenu();
+  });
+
+  // 초기 언어 표시 업데이트
+  updateLanguageButtonUI();
+}
+
+function updateLanguageButtonUI() {
+  const langBtn = document.getElementById('btn-lang');
+  if (!langBtn) return;
+
+  const currentLang = getLanguage();
+  const languages = getAvailableLanguages();
+  const currentLangName = languages.find(l => l.code === currentLang)?.name || '한국어';
+
+  const langLabel = langBtn.querySelector('span:nth-of-type(2)');
+  if (langLabel) {
+    langLabel.textContent = currentLangName;
+  }
+}
+
+function showLanguageMenu() {
+  const existing = document.getElementById('language-menu-modal');
+  if (existing) existing.remove();
+
+  const languages = getAvailableLanguages();
+  const currentLang = getLanguage();
+
+  const modal = document.createElement('div');
+  modal.id = 'language-menu-modal';
+  modal.className = 'fixed inset-0 z-[200] flex items-start justify-end';
+  modal.innerHTML = `
+    <div class="absolute inset-0" id="lang-menu-overlay"></div>
+    <div class="relative w-48 mt-20 mr-4 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container flex flex-col gap-2 p-3">
+      ${languages.map(lang => `
+        <button class="language-option w-full px-4 py-2.5 rounded-xl text-left font-body-md transition-colors cursor-pointer ${
+          lang.code === currentLang
+            ? 'bg-secondary text-on-secondary'
+            : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
+        }" data-lang="${lang.code}">
+          ${lang.name}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 오버레이 클릭 → 메뉴 닫기
+  document.getElementById('lang-menu-overlay').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  // 언어 선택
+  modal.querySelectorAll('.language-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      setLanguage(lang);
+      updateLanguageButtonUI();
+      modal.remove();
+
+      // 현재 화면 재렌더링
+      updateNavLabels();
+      navigateTo(currentView === undefined ? 'login' : currentView);
+
+      const langChangedMsg = getLanguage() === 'ko'
+        ? `언어가 ${btn.textContent.trim()}로 변경되었습니다.`
+        : `Language changed to ${btn.textContent.trim()}.`;
+      showToast(langChangedMsg, 'secondary');
+    });
+  });
+}
+
 // ── Boot ───────────────────────────────────────────────────────────────────────
 async function initApp() {
+  // 언어 선택 버튼 초기화
+  initLanguageSelector();
+
   // 프로필 버튼 클릭 이벤트 초기화 (한 번만)
   initProfileButton();
 
-  // 초기에 admin 탭 숨김 (일반 사용자용)
+  // 초기에 하단 네비게이션 숨김 (로그인 전)
+  const bottomNav = document.getElementById('bottom-nav');
+  if (bottomNav) {
+    bottomNav.classList.add('hidden');
+  }
+
+  // 초기에 알림과 프로필 버튼 숨김 (로그인 전)
+  const notificationsBtn = document.getElementById('btn-notifications');
+  const profileBtn = document.getElementById('profile-btn');
+  if (notificationsBtn) notificationsBtn.classList.add('hidden');
+  if (profileBtn) profileBtn.classList.add('hidden');
+
+  // 초기에 admin 탭 숨김
   const adminBtn = document.getElementById('nav-admin');
   if (adminBtn) {
     adminBtn.classList.add('hidden');
@@ -1211,6 +1360,13 @@ async function initApp() {
     currentUser = user;
     if (user) {
       console.log('👤 로그인됨:', user.email, `(역할: ${user.role})`);
+      // 하단 네비게이션 표시
+      if (bottomNav) {
+        bottomNav.classList.remove('hidden');
+      }
+      // 알림과 프로필 버튼 표시
+      if (notificationsBtn) notificationsBtn.classList.remove('hidden');
+      if (profileBtn) profileBtn.classList.remove('hidden');
       // 프로필 버튼 UI 업데이트
       updateProfileButtonUI();
       // admin 탭 표시/숨김
@@ -1223,6 +1379,13 @@ async function initApp() {
       }
     } else {
       console.log('🚪 로그아웃됨');
+      // 하단 네비게이션 숨김
+      if (bottomNav) {
+        bottomNav.classList.add('hidden');
+      }
+      // 알림과 프로필 버튼 숨김
+      if (notificationsBtn) notificationsBtn.classList.add('hidden');
+      if (profileBtn) profileBtn.classList.add('hidden');
       // 프로필 버튼 UI 업데이트
       updateProfileButtonUI();
       // 로그아웃 시 admin 탭 숨김
