@@ -260,14 +260,24 @@ export function renderPartDetailModal(part) {
           max-width: 100vw;
         }
 
-        /* 9:16 쇼츠 영상에서만 버튼 표시 (모바일) */
-        #playerWrap[data-is-shorts="true"] #fsBtn {
-          display: block !important;
+        /* 모바일에서만 버튼 표시 */
+        @media (max-width: 768px) {
+          /* 9:16 쇼츠 영상에서는 버튼 숨김 (자동 전체화면) */
+          #playerWrap[data-is-shorts="true"] #fsBtn {
+            display: none !important;
+          }
+
+          /* 16:9 일반 영상에서는 버튼 표시 */
+          #playerWrap[data-is-shorts="false"] #fsBtn {
+            display: block !important;
+          }
         }
 
-        /* 16:9 일반 영상에서는 버튼 숨김 */
-        #playerWrap[data-is-shorts="false"] #fsBtn {
-          display: none !important;
+        /* PC 브라우저에서는 항상 버튼 숨김 */
+        @media (min-width: 769px) {
+          #playerWrap #fsBtn {
+            display: none !important;
+          }
         }
 
         #playerWrap #fsBtn {

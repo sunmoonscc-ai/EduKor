@@ -1220,19 +1220,14 @@ function showPartDetailModal(part) {
   // 9:16 쇼츠 영상 처리
   setTimeout(() => {
     const playerWrap = document.getElementById('playerWrap');
-    const fsBtn = document.getElementById('fsBtn');
 
-    if (playerWrap && fsBtn) {
+    if (playerWrap) {
       const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
 
       if (isShorts) {
-        // 9:16 쇼츠: 자동으로 전체화면 상태로 표시 (버튼 없음)
+        // 9:16 쇼츠: 자동으로 전체화면 상태로 표시
         playerWrap.classList.add('pseudo-fs');
         document.body.classList.add('focus-shorts');
-        fsBtn.style.setProperty('display', 'none', 'important');
-      } else {
-        // 16:9 일반 영상: 버튼 표시
-        fsBtn.style.setProperty('display', 'block', 'important');
       }
     }
   }, 50);
