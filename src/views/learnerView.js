@@ -81,39 +81,44 @@ export function renderCourseCard(course) {
 }
 
 /**
- * 레슨 상세 모달 (파트별 영상)
+ * 레슨 상세 모달 (파트별 영상 - 아코디언 형식)
  */
 export function renderLessonDetailModal(lesson, parts = []) {
-  const partTabs = parts.length > 0
+  const partAccordion = parts.length > 0
     ? parts.map((part, idx) => `
-        <button class="lesson-part-tab px-2 sm:px-3 py-2 rounded-lg font-label-sm text-label-sm border-b-2 transition-colors cursor-pointer text-xs sm:text-sm whitespace-nowrap ${idx === 0 ? 'border-secondary text-secondary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}" data-part-id="${part.id}" data-part-index="${idx}">
-          ${part.partName}
-        </button>
-      `).join('')
-    : '';
-
-  const partContent = parts.length > 0
-    ? parts.map((part, idx) => `
-        <div id="part-content-${part.id}" class="lesson-part-content ${idx !== 0 ? 'hidden' : ''} flex flex-col gap-3 sm:gap-4 w-full overflow-x-hidden">
-          <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
-            <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
-              <iframe
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                class="rounded-xl sm:rounded-2xl">
-              </iframe>
+        <div class="lesson-part-accordion-item border border-surface-container rounded-xl overflow-hidden">
+          <!-- 아코디언 헤더 -->
+          <button class="lesson-part-accordion-header w-full px-4 py-3 sm:py-4 flex items-center justify-between gap-3 bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer" data-part-id="${part.id}">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <span class="material-symbols-outlined text-[20px] sm:text-[24px] text-primary flex-shrink-0">play_circle</span>
+              <div class="text-left min-w-0">
+                <p class="font-headline-sm text-headline-sm text-on-surface font-bold text-sm sm:text-base truncate">${part.partName}</p>
+                <p class="font-label-sm text-label-sm text-on-surface-variant text-xs sm:text-sm">⏱️ ${part.duration}분</p>
+              </div>
             </div>
-          </div>
+            <span class="material-symbols-outlined text-[20px] text-on-surface-variant flex-shrink-0 transition-transform accordion-icon">expand_more</span>
+          </button>
 
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between gap-2">
-              <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold line-clamp-2">${part.partName}</h4>
-              <span class="px-2 py-1 rounded-lg bg-primary/10 text-primary font-label-sm text-label-sm whitespace-nowrap text-xs sm:text-sm">⏱️ ${part.duration}분</span>
+          <!-- 아코디언 바디 -->
+          <div class="lesson-part-accordion-body hidden border-t border-surface-container">
+            <div class="flex flex-col gap-3 sm:gap-4 p-4 sm:p-6">
+              <!-- 영상 -->
+              <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
+                <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+                  <iframe
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    src="https://www.youtube.com/embed/${part.youtubeId}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    class="rounded-xl sm:rounded-2xl">
+                  </iframe>
+                </div>
+              </div>
+
+              <!-- 설명 -->
+              ${part.description ? `<p class="font-body-sm text-body-sm text-on-surface-variant text-xs sm:text-sm whitespace-pre-line">${part.description}</p>` : ''}
             </div>
-            ${part.description ? `<p class="font-body-sm text-on-surface-variant text-xs sm:text-sm">${part.description}</p>` : ''}
           </div>
         </div>
       `).join('')
@@ -142,18 +147,13 @@ export function renderLessonDetailModal(lesson, parts = []) {
           </div>
           <div class="flex items-center gap-1 whitespace-nowrap">
             <span class="material-symbols-outlined text-[16px] flex-shrink-0">timer</span>
-            <span>총 50분</span>
+            <span>총 ${parts.reduce((sum, p) => sum + (p.duration || 0), 0)}분</span>
           </div>
         </div>
 
-        <!-- 파트 탭 -->
-        <div class="flex gap-2 border-b border-surface-container overflow-x-auto -mx-3 sm:-mx-6 px-3 sm:px-6">
-          ${partTabs}
-        </div>
-
-        <!-- 파트 콘텐츠 -->
-        <div class="flex flex-col gap-3 sm:gap-4 w-full overflow-x-hidden">
-          ${partContent}
+        <!-- 파트 아코디언 -->
+        <div class="flex flex-col gap-2 sm:gap-3 w-full overflow-x-hidden">
+          ${partAccordion}
         </div>
       </div>
     </div>

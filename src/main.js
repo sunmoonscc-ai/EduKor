@@ -578,28 +578,23 @@ async function showLessonDetail(lesson) {
         modal.remove();
       });
 
-      // 파트 탭 클릭 이벤트
-      document.querySelectorAll('.lesson-part-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          const partId = tab.dataset.partId;
-          const partIndex = parseInt(tab.dataset.partIndex);
+      // 파트 아코디언 이벤트
+      document.querySelectorAll('.lesson-part-accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const accordion = header.parentElement;
+          const body = accordion.querySelector('.lesson-part-accordion-body');
+          const icon = header.querySelector('.accordion-icon');
+          const isOpen = !body.classList.contains('hidden');
 
-          // 탭 스타일 업데이트
-          document.querySelectorAll('.lesson-part-tab').forEach(t => {
-            if (t.dataset.partId === partId) {
-              t.classList.add('border-secondary', 'text-secondary');
-              t.classList.remove('border-transparent', 'text-on-surface-variant');
-            } else {
-              t.classList.remove('border-secondary', 'text-secondary');
-              t.classList.add('border-transparent', 'text-on-surface-variant');
-            }
-          });
-
-          // 콘텐츠 표시/숨김
-          document.querySelectorAll('.lesson-part-content').forEach(content => {
-            content.classList.add('hidden');
-          });
-          document.getElementById(`part-content-${partId}`)?.classList.remove('hidden');
+          if (isOpen) {
+            // 닫기
+            body.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+          } else {
+            // 열기
+            body.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+          }
         });
       });
     }
