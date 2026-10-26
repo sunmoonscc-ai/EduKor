@@ -1201,64 +1201,138 @@ function showPartDetailModal(part) {
     }
   });
 
-  // 쇼츠 전체화면 버튼 이벤트
+  // YouTube IFrame Player API 초기화
   setTimeout(() => {
-    const fsBtn = document.getElementById('fsBtn');
-    const playerWrap = document.getElementById('playerWrap');
+    initYouTubePlayer();
+  }, 100);
 
-    if (fsBtn && playerWrap) {
-      fsBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
+  // 전체화면 버튼 이벤트
+  setTimeout(() => {
+    setupFullscreenButton();
+  }, 200);
+}
 
-        // 이미 전체화면이거나 CSS 대체 모드면 해제
-        if (document.fullscreenElement || playerWrap.classList.contains('pseudo-fs')) {
-          try {
-            if (document.fullscreenElement) {
-              document.exitFullscreen();
-            }
-          } catch (err) {
-            console.warn('Fullscreen exit failed:', err);
-          }
-          playerWrap.classList.remove('pseudo-fs');
-          document.body.classList.remove('focus-shorts');
-          return;
-        }
+function initYouTubePlayer() {
+  const playerDiv = document.getElementById('ytPlayer');
+  if (!playerDiv || !window.ytPlayerData) return;
 
-        // 진짜 전체화면 시도 (webkit 접두사 포함)
-        try {
-          const requestFullscreenMethod =
-            playerWrap.requestFullscreen ||
-            playerWrap.webkitRequestFullscreen ||
-            playerWrap.mozRequestFullScreen ||
-            playerWrap.msRequestFullscreen;
+  // YouTube API 스크립트 로드
+  if (!window.YT) {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  }
 
-          if (requestFullscreenMethod) {
-            await requestFullscreenMethod.call(playerWrap);
-            return;
-          }
-        } catch (err) {
-          console.warn('Fullscreen API not supported or denied:', err);
-        }
-
-        // 지원 안 되면 CSS 대체 모드 (iOS Safari 등)
-        playerWrap.classList.add('pseudo-fs');
-        document.body.classList.add('focus-shorts');
-      });
-
-      // fullscreen 변화 감시 (상단·하단 메뉴 상태 동기화)
-      const handleFullscreenChange = () => {
-        if (!document.fullscreenElement) {
-          playerWrap.classList.remove('pseudo-fs');
-          document.body.classList.remove('focus-shorts');
-        }
-      };
-
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-      document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-      document.addEventListener('msfullscreenchange', handleFullscreenChange);
+  // API 준비 대기
+  const checkAPI = setInterval(() => {
+    if (window.YT && window.YT.Player) {
+      clearInterval(checkAPI);
+      createYouTubePlayer(playerDiv);
     }
   }, 100);
+
+  // 타임아웃 (5초)
+  setTimeout(() => clearInterval(checkAPI), 5000);
+}
+
+function createYouTubePlayer(playerDiv) {
+  const { videoId, isShorts } = window.ytPlayerData;
+
+  // 자막 끄기 함수
+  function disableCaptions() {
+    try { window.ytPlayer.unloadModule('captions'); } catch (e) {}
+    try { window.ytPlayer.unloadModule('cc'); } catch (e) {}
+    try { window.ytPlayer.setOption('captions', 'track', {}); } catch (e) {}
+  }
+
+  window.ytPlayer = new YT.Player(playerDiv, {
+    videoId: videoId,
+    width: '100%',
+    height: '100%',
+    playerVars: {
+      playsinline: 1,
+      rel: 0,
+      cc_load_policy: 0,
+      iv_load_policy: 3,
+      fs: 1,
+      origin: window.location.origin,
+      autoplay: 0,
+    },
+    events: {
+      onReady: (e) => {
+        disableCaptions();
+      },
+      onStateChange: (e) => {
+        // PLAYING 상태에서 자막 재확인 (나중에 로드되는 경우 대비)
+        if (e.data === YT.PlayerState.PLAYING) {
+          disableCaptions();
+        }
+        // ENDED 상태에서 반복 재생
+        if (e.data === YT.PlayerState.ENDED) {
+          e.target.seekTo(0);
+          e.target.playVideo();
+        }
+      },
+    },
+  });
+}
+
+function setupFullscreenButton() {
+  const fsBtn = document.getElementById('fsBtn');
+  const playerWrap = document.getElementById('playerWrap');
+
+  if (!fsBtn || !playerWrap) return;
+
+  fsBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+
+    // 이미 전체화면이거나 CSS 대체 모드면 해제
+    if (document.fullscreenElement || playerWrap.classList.contains('pseudo-fs')) {
+      try {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      } catch (err) {
+        console.warn('Fullscreen exit failed:', err);
+      }
+      playerWrap.classList.remove('pseudo-fs');
+      document.body.classList.remove('focus-shorts');
+      return;
+    }
+
+    // 진짜 전체화면 시도 (webkit 접두사 포함)
+    try {
+      const requestFullscreenMethod =
+        playerWrap.requestFullscreen ||
+        playerWrap.webkitRequestFullscreen ||
+        playerWrap.mozRequestFullScreen ||
+        playerWrap.msRequestFullscreen;
+
+      if (requestFullscreenMethod) {
+        await requestFullscreenMethod.call(playerWrap);
+        return;
+      }
+    } catch (err) {
+      console.warn('Fullscreen API not supported or denied:', err);
+    }
+
+    // 지원 안 되면 CSS 대체 모드 (iOS Safari 등)
+    playerWrap.classList.add('pseudo-fs');
+    document.body.classList.add('focus-shorts');
+  });
+
+  // fullscreen 변화 감시 (상단·하단 메뉴 상태 동기화)
+  const handleFullscreenChange = () => {
+    if (!document.fullscreenElement) {
+      playerWrap.classList.remove('pseudo-fs');
+      document.body.classList.remove('focus-shorts');
+    }
+  };
+
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+  document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+  document.addEventListener('msfullscreenchange', handleFullscreenChange);
 }
 
 function closePartDetailModal(lessonModal) {

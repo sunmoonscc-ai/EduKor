@@ -199,33 +199,15 @@ export function renderPartDetailModal(part) {
       <!-- 영상 컨테이너 -->
       <div class="flex-1 w-full h-full flex items-center justify-center bg-black overflow-hidden">
         ${part.youtubeId ? `
-          ${part.isShorts === true ? `
-            <!-- YouTube Shorts: 9:16 세로 비율 + 커스텀 전체화면 -->
-            <div id="playerWrap">
-              <iframe
-                id="shortPlayer"
-                class="shorts-player"
-                src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0&cc_load_policy=0&loop=0"
-                frameborder="0"
-                title="YouTube Shorts"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
-                allowfullscreen>
-              </iframe>
-              <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all cursor-pointer" title="전체화면">
-                <span class="material-symbols-outlined text-[24px]">fullscreen</span>
-              </button>
-            </div>
-          ` : `
-            <!-- 일반 YouTube: 16:9 가로 비율 (전체 화면) -->
-            <iframe
-              style="width: 100%; height: 100%;"
-              src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1&rel=0&modestbranding=1&playsinline=1&cc_load_policy=0&loop=0"
-              frameborder="0"
-              title="YouTube Video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen>
-            </iframe>
-          `}
+          <div id="playerWrap">
+            <div id="ytPlayer"></div>
+            <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all cursor-pointer" title="전체화면">
+              <span class="material-symbols-outlined text-[24px]">fullscreen</span>
+            </button>
+          </div>
+          <script>
+            window.ytPlayerData = { videoId: '${part.youtubeId}', isShorts: ${part.isShorts === true} };
+          </script>
         ` : `
           <div class="text-center text-on-surface-variant">
             <span class="material-symbols-outlined text-[48px]">video_library</span>
@@ -245,21 +227,17 @@ export function renderPartDetailModal(part) {
           background-color: #000;
           overflow: hidden;
           position: relative;
+          max-width: 100%;
+          max-height: 100%;
         }
 
-        .shorts-player {
+        #playerWrap #ytPlayer,
+        #playerWrap iframe {
           width: 100%;
           height: 100%;
           aspect-ratio: 9/16;
           border: none;
           display: block;
-          object-fit: contain;
-        }
-
-        /* 정규 모드: 부모 컨테이너 내에서 최대 크기 유지 */
-        #playerWrap {
-          max-width: 100%;
-          max-height: 100%;
         }
 
         /* 전체화면 모드 */
@@ -275,8 +253,10 @@ export function renderPartDetailModal(part) {
           background-color: #000;
         }
 
-        #playerWrap:fullscreen .shorts-player,
-        #playerWrap.pseudo-fs .shorts-player {
+        #playerWrap:fullscreen #ytPlayer,
+        #playerWrap.pseudo-fs #ytPlayer,
+        #playerWrap:fullscreen iframe,
+        #playerWrap.pseudo-fs iframe {
           width: auto;
           height: 100dvh;
           aspect-ratio: 9/16;
