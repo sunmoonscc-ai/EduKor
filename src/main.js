@@ -878,13 +878,63 @@ async function loadPartsForSelectedLesson(lesson, partsSection) {
         partsList.innerHTML = '<div class="text-sm text-on-surface-variant">파트가 없습니다</div>';
       } else {
         partsList.innerHTML = allPartsForSelectedLesson.map(part => `
-          <div class="flex items-center justify-between text-sm">
-            <span>${part.partName} (${part.duration}분)</span>
-            <button class="px-2 py-1 text-xs bg-primary/10 text-primary rounded cursor-pointer hover:bg-primary/20 btn-edit-part" data-part-id="${part.id}">
-              편집
-            </button>
+          <div class="flex items-center justify-between text-sm bg-surface-container-low rounded p-2">
+            <span class="flex-1">${part.partName} (${part.duration}분)</span>
+            <div class="flex gap-1">
+              <button class="px-2 py-1 text-xs bg-primary/10 text-primary rounded cursor-pointer hover:bg-primary/20 btn-edit-part-inline" data-part-id="${part.id}">
+                편집
+              </button>
+              <button class="px-2 py-1 text-xs bg-error/10 text-error rounded cursor-pointer hover:bg-error/20 btn-delete-part-inline" data-part-id="${part.id}">
+                삭제
+              </button>
+            </div>
           </div>
         `).join('');
+      }
+
+      // 인라인 편집 버튼 이벤트 바인딩
+      partsList.querySelectorAll('.btn-edit-part-inline').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const partId = btn.dataset.partId;
+          const part = allPartsForSelectedLesson.find(p => p.id === partId);
+          if (part) {
+            selectedLessonForParts = lesson.id;
+            showPartForm(part);
+          }
+        });
+      });
+
+      // 인라인 삭제 버튼 이벤트 바인딩
+      partsList.querySelectorAll('.btn-delete-part-inline').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const partId = btn.dataset.partId;
+          if (confirm('이 파트를 삭제하시겠습니까?')) {
+            try {
+              const result = await deleteLessonPart(partId);
+              if (result.success) {
+                showToast('파트가 삭제되었습니다.', 'success');
+                await loadPartsForSelectedLesson(lesson, partsSection);
+              } else {
+                showToast('파트 삭제에 실패했습니다.', 'error');
+              }
+            } catch (error) {
+              console.error('❌ 파트 삭제 실패:', error);
+              showToast('파트 삭제 중 오류가 발생했습니다.', 'error');
+            }
+          }
+        });
+      });
+
+      // 파트 추가 버튼 이벤트 바인딩
+      const addPartBtn = partsSection.querySelector('.btn-add-part');
+      if (addPartBtn) {
+        addPartBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectedLessonForParts = lesson.id;
+          showPartForm();
+        });
       }
     } else {
       renderPartsList(allPartsForSelectedLesson);
@@ -983,44 +1033,64 @@ async function handlePartSubmit(e) {
     return;
   }
 
-  if (selectedPartForEdit) {
-    // 파트 수정
-    const result = await updateLessonPart(selectedPartForEdit, {
-      partType,
-      partName,
-      youtubeId,
-      duration,
-      description
-    });
+  try {
+    if (selectedPartForEdit) {
+      // 파트 수정
+      const result = await updateLessonPart(selectedPartForEdit, {
+        partType,
+        partName,
+        youtubeId,
+        duration,
+        description
+      });
 
-    if (result.success) {
-      showToast('파트가 수정되었습니다.', 'success');
-      hidePartForm();
-      await loadPartsForSelectedLesson({ id: selectedLessonForParts });
+      if (result.success) {
+        showToast('파트가 수정되었습니다.', 'success');
+        hidePartForm();
+        // 해당 차시의 파트만 다시 로드
+        await refreshPartsSectionForLesson(selectedLessonForParts);
+      } else {
+        showToast(`파트 수정 실패: ${result.error}`, 'error');
+      }
     } else {
-      showToast(`파트 수정 실패: ${result.error}`, 'error');
-    }
-  } else {
-    // 파트 생성
-    const result = await createLessonPart({
-      lessonId: selectedLessonForParts,
-      courseId: selectedCourseForLessons,
-      partType,
-      partName,
-      youtubeId,
-      duration,
-      description,
-      order: allPartsForSelectedLesson.length + 1
-    });
+      // 파트 생성
+      const result = await createLessonPart({
+        lessonId: selectedLessonForParts,
+        courseId: selectedCourseForLessons,
+        partType,
+        partName,
+        youtubeId,
+        duration,
+        description,
+        order: allPartsForSelectedLesson.length + 1
+      });
 
-    if (result.success) {
-      showToast('파트가 추가되었습니다.', 'success');
-      hidePartForm();
-      await loadPartsForSelectedLesson({ id: selectedLessonForParts });
-    } else {
-      showToast(`파트 추가 실패: ${result.error}`, 'error');
+      if (result.success) {
+        showToast('파트가 추가되었습니다.', 'success');
+        hidePartForm();
+        // 해당 차시의 파트만 다시 로드
+        await refreshPartsSectionForLesson(selectedLessonForParts);
+      } else {
+        showToast(`파트 추가 실패: ${result.error}`, 'error');
+      }
     }
+  } catch (error) {
+    console.error('❌ 파트 제출 중 오류:', error);
+    showToast('파트 처리 중 오류가 발생했습니다.', 'error');
   }
+}
+
+async function refreshPartsSectionForLesson(lessonId) {
+  const lesson = allLessonsForSelectedCourse.find(l => l.id === lessonId);
+  if (!lesson) return;
+
+  const lessonCard = document.querySelector(`[data-lesson-id="${lessonId}"]`);
+  if (!lessonCard) return;
+
+  const partsSection = lessonCard.parentElement?.querySelector('.lesson-parts-section');
+  if (!partsSection) return;
+
+  await loadPartsForSelectedLesson(lesson, partsSection);
 }
 
 async function handleDeletePart(partId) {
