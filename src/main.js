@@ -1239,6 +1239,15 @@ function showPartDetailModal(part) {
   // DB에서 받은 part.isShorts 값을 그대로 사용 (handlePartSubmit에서 URL로 판단했으므로)
   // part.isShorts는 이미 true/false로 설정되어 있음
 
+  console.log('📺 파트 상세 모달 표시:', {
+    partId: part.id,
+    partName: part.partName,
+    youtubeId: part.youtubeId,
+    isShorts: part.isShorts,
+    isShorts타입: typeof part.isShorts,
+    전체part: part
+  });
+
   const modalHTML = renderPartDetailModal(part);
 
   // 차시 상세 모달 숨기기 (제거하지 않음)
@@ -1257,6 +1266,14 @@ function showPartDetailModal(part) {
   document.body.insertAdjacentHTML('beforeend', modalHTML);
   modal = document.getElementById('modal-part-detail');
   modal?.classList.remove('hidden');
+
+  // 렌더링된 HTML 속성 확인
+  const playerWrap = document.getElementById('playerWrap');
+  console.log('🎬 렌더링된 playerWrap 속성:', {
+    dataIsShorts: playerWrap?.getAttribute('data-is-shorts'),
+    dataVideoId: playerWrap?.getAttribute('data-video-id'),
+    playerWrap요소: playerWrap
+  });
 
   // 팝업 스택에 추가
   modalStack.push('part');
