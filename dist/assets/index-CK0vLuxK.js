@@ -1021,66 +1021,9 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
             </div>
           </div>
 
-          <!-- 파트 관리 폼 (차시 선택 후) -->
-          <div id="parts-management-section" class="hidden mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-surface-container">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold text-sm sm:text-base">파트 관리 (차시: <span id="selected-lesson-title" class="line-clamp-1">미선택</span>)</h3>
-              <button id="btn-new-part" class="w-full sm:w-auto px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center sm:justify-start gap-1 hover:bg-primary/90 cursor-pointer transition-colors text-sm flex-shrink-0">
-                <span class="material-symbols-outlined text-[16px]">add</span>
-                <span>파트 추가</span>
-              </button>
-            </div>
-
-            <!-- 파트 목록 -->
-            <div id="parts-list" class="grid grid-cols-1 gap-2 mb-4 sm:mb-6 overflow-x-hidden">
-              <div class="text-center py-8 text-on-surface-variant text-sm">파트가 없습니다</div>
-            </div>
-
-            <!-- 파트 폼 (추가/수정) -->
-            <form id="form-part" class="hidden bg-surface-container-low rounded-2xl p-3 sm:p-4 gap-3 sm:gap-4 flex flex-col mt-4">
-              <div>
-                <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">파트 유형 *</label>
-                <select id="input-part-type" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md outline-none focus:border-primary transition-colors text-sm" required>
-                  <option value="">선택하세요</option>
-                  <option value="opening">열기 (Opening)</option>
-                  <option value="listening">듣고 따라하기 (Listening)</option>
-                  <option value="shape">모양 외우기 (Shape)</option>
-                  <option value="writing">쓰고 만들기 (Writing)</option>
-                  <option value="quiz">단어 게임 + 퀴즈 (Quiz)</option>
-                  <option value="homework">숙제 (Homework)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">파트 이름 *</label>
-                <input type="text" id="input-part-name" placeholder="예: 한글 발음 연습" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">YouTube URL 또는 ID *</label>
-                  <input type="text" id="input-part-youtube-id" placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ 또는 dQw4w9WgXcQ" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
-                </div>
-                <div>
-                  <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">소요 시간 (분) *</label>
-                  <input type="number" id="input-part-duration" placeholder="5" min="1" max="120" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
-                </div>
-              </div>
-
-              <div>
-                <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">설명</label>
-                <textarea id="input-part-description" placeholder="이 파트에 대한 설명" class="w-full h-16 px-3 py-2 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors resize-none text-sm"></textarea>
-              </div>
-
-              <div class="flex gap-2 justify-end">
-                <button type="button" id="btn-cancel-part" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors text-sm">
-                  취소
-                </button>
-                <button type="submit" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer hover:bg-primary/90 transition-colors text-sm">
-                  저장
-                </button>
-              </div>
-            </form>
+          <!-- 파트 목록 -->
+          <div id="parts-list" class="grid grid-cols-1 gap-2 overflow-x-hidden">
+            <div class="text-center py-8 text-on-surface-variant text-sm">파트가 없습니다</div>
           </div>
         </div>
       </div>
@@ -1188,6 +1131,64 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
               취소
             </button>
             <button type="submit" class="flex-1 h-10 sm:h-12 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold cursor-pointer hover:bg-secondary/90 transition-colors text-sm">
+              저장
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 파트 생성/수정 모달 -->
+    <div id="modal-part-form" class="fixed inset-x-0 top-0 z-[100] hidden flex items-center justify-center pt-4 sm:pt-6 px-2 sm:px-4">
+      <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm" id="modal-part-overlay"></div>
+      <div class="relative w-full max-w-2xl bg-surface-container-lowest rounded-2xl sm:rounded-3xl shadow-xl border border-surface-container p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 max-h-[85vh] overflow-y-auto overflow-x-hidden">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg" id="modal-part-title">파트 추가</h2>
+          <button class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high flex-shrink-0" id="btn-close-part-modal">
+            <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-on-surface-variant">close</span>
+          </button>
+        </div>
+
+        <form id="form-part" class="flex flex-col gap-3 sm:gap-4">
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">파트 유형 *</label>
+            <select id="input-part-type" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md outline-none focus:border-primary transition-colors text-sm" required>
+              <option value="">선택하세요</option>
+              <option value="opening">열기 (Opening)</option>
+              <option value="listening">듣고 따라하기 (Listening)</option>
+              <option value="shape">모양 외우기 (Shape)</option>
+              <option value="writing">쓰고 만들기 (Writing)</option>
+              <option value="quiz">단어 게임 + 퀴즈 (Quiz)</option>
+              <option value="homework">숙제 (Homework)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">파트 이름 *</label>
+            <input type="text" id="input-part-name" placeholder="예: 한글 발음 연습" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">YouTube URL 또는 ID *</label>
+              <input type="text" id="input-part-youtube-id" placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ 또는 dQw4w9WgXcQ" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
+            </div>
+            <div>
+              <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">소요 시간 (분) *</label>
+              <input type="number" id="input-part-duration" placeholder="5" min="1" max="120" class="w-full h-10 px-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors text-sm" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">설명</label>
+            <textarea id="input-part-description" placeholder="이 파트에 대한 설명" class="w-full h-16 px-3 py-2 rounded-lg border border-surface-container-high bg-surface-container-lowest text-on-surface font-body-md placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors resize-none text-sm"></textarea>
+          </div>
+
+          <div class="flex gap-2 justify-end">
+            <button type="button" id="btn-cancel-part" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-bold cursor-pointer hover:bg-surface-container-high transition-colors text-sm">
+              취소
+            </button>
+            <button type="submit" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer hover:bg-primary/90 transition-colors text-sm">
               저장
             </button>
           </div>
@@ -1402,7 +1403,7 @@ Total Duration: ${c-l}ms`),K.resolve({didRun:!0,sequenceNumbersCollected:r,targe
           <span class="material-symbols-outlined text-[20px] text-on-surface-variant flex-shrink-0">arrow_forward</span>
         </div>
       </div>
-    `).join(``),n.querySelectorAll(`[data-lesson-id]`).forEach(e=>{e.addEventListener(`click`,()=>{oC(t.find(t=>t.id===e.dataset.lessonId))})})}catch(e){console.error(`❌ 차시 로드 실패:`,e)}}async function oC(e){try{let t=o(e,await CS(e.id));qS.insertAdjacentHTML(`afterend`,t);let n=document.getElementById(`modal-lesson-detail`);n&&(n.classList.remove(`hidden`),document.getElementById(`btn-close-lesson-modal`)?.addEventListener(`click`,()=>{n.remove()}),document.getElementById(`modal-lesson-overlay`)?.addEventListener(`click`,()=>{n.remove()}),document.querySelectorAll(`.lesson-part-accordion-header`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.parentElement.querySelector(`.lesson-part-accordion-body`),n=e.querySelector(`.accordion-icon`);t.classList.contains(`hidden`)?(t.classList.remove(`hidden`),n.style.transform=`rotate(180deg)`):(t.classList.add(`hidden`),n.style.transform=`rotate(0deg)`)})}))}catch(e){console.error(`❌ 레슨 상세 로드 실패:`,e),$(`강의를 불러올 수 없습니다.`,`error`)}}function sC(){document.getElementById(`open-live-btn`)?.addEventListener(`click`,()=>{$(`🎥 화상 강의실 연결 중...`,`secondary`)}),document.querySelectorAll(`.attendance-btn`).forEach(e=>{e.addEventListener(`click`,()=>{e.innerHTML=`<span class="material-symbols-outlined text-[15px]">done_all</span><span>출석 완료</span>`,e.classList.add(`bg-secondary`,`text-on-secondary`),$(`출석이 확인되었습니다.`,`secondary`)})})}var cC=`dashboard`,lC=[];function uC(){document.querySelectorAll(`.admin-sub-tab`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.dataset.subTab;RC(t)})}),RC(`dashboard`)}var dC=[],fC=null,pC=null,mC=null,hC=[],gC=[];async function _C(){await MC(),document.querySelectorAll(`.content-tab`).forEach(e=>{e.addEventListener(`click`,()=>{jC(e.dataset.tab)})}),document.getElementById(`btn-new-course`)?.addEventListener(`click`,()=>{PC()}),document.getElementById(`btn-close-course-modal`)?.addEventListener(`click`,FC),document.getElementById(`modal-course-overlay`)?.addEventListener(`click`,FC),document.getElementById(`btn-cancel-course`)?.addEventListener(`click`,FC),document.getElementById(`form-course`)?.addEventListener(`submit`,IC);let e=document.getElementById(`select-course-for-lessons`);if(console.log(`📌 차시 관리 초기화:`,{selectExists:!!e,coursesCount:dC.length,courses:dC.map(e=>({id:e.id,title:e.title}))}),e){let t=`<option value="">강의를 선택하세요</option>`+dC.map(e=>`<option value="${e.id}">${e.title}</option>`).join(``);console.log(`✏️ 드롭다운 HTML 설정:`,t),e.innerHTML=t,e.addEventListener(`change`,async e=>{console.log(`🔄 드롭다운 change 이벤트 발생:`,e.target.value),fC=e.target.value,await vC()})}document.getElementById(`btn-new-lesson`)?.addEventListener(`click`,()=>{fC?OC():$(`먼저 강의를 선택해주세요.`,`info`)}),document.getElementById(`btn-close-lesson-modal`)?.addEventListener(`click`,kC),document.getElementById(`modal-lesson-overlay`)?.addEventListener(`click`,kC),document.getElementById(`btn-cancel-lesson`)?.addEventListener(`click`,kC),document.getElementById(`form-lesson`)?.addEventListener(`submit`,AC),document.getElementById(`btn-new-part`)?.addEventListener(`click`,()=>{SC()}),document.getElementById(`btn-cancel-part`)?.addEventListener(`click`,()=>{CC()}),document.getElementById(`form-part`)?.addEventListener(`submit`,TC)}async function vC(){if(!fC)console.warn(`⚠️ selectedCourseForLessons가 설정되지 않음`);else try{console.log(`📚 차시 목록 로드 시작:`,fC),hC=await vS(fC),console.log(`✅ 차시 데이터 조회 완료:`,hC),yC(hC)}catch(e){console.error(`❌ 차시 목록 로드 실패:`,e),$(`차시 목록을 불러올 수 없습니다.`,`error`)}}function yC(e){let t=document.getElementById(`lessons-list-container`);if(console.log(`🎬 renderLessonsList 호출:`,{lessonsCount:e.length,containerExists:!!t,lessons:e.map(e=>({id:e.id,number:e.lessonNumber,title:e.title}))}),!t){console.error(`❌ lessons-list-container를 찾을 수 없습니다!`),console.log(`📍 현재 DOM:`,document.body.innerHTML.substring(0,500));return}if(console.log(`✅ container 찾음. 렌더링 시작...`),e.length===0){t.innerHTML=`
+    `).join(``),n.querySelectorAll(`[data-lesson-id]`).forEach(e=>{e.addEventListener(`click`,()=>{oC(t.find(t=>t.id===e.dataset.lessonId))})})}catch(e){console.error(`❌ 차시 로드 실패:`,e)}}async function oC(e){try{let t=o(e,await CS(e.id));qS.insertAdjacentHTML(`afterend`,t);let n=document.getElementById(`modal-lesson-detail`);n&&(n.classList.remove(`hidden`),document.getElementById(`btn-close-lesson-modal`)?.addEventListener(`click`,()=>{n.remove()}),document.getElementById(`modal-lesson-overlay`)?.addEventListener(`click`,()=>{n.remove()}),document.querySelectorAll(`.lesson-part-accordion-header`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.parentElement.querySelector(`.lesson-part-accordion-body`),n=e.querySelector(`.accordion-icon`);t.classList.contains(`hidden`)?(t.classList.remove(`hidden`),n.style.transform=`rotate(180deg)`):(t.classList.add(`hidden`),n.style.transform=`rotate(0deg)`)})}))}catch(e){console.error(`❌ 레슨 상세 로드 실패:`,e),$(`강의를 불러올 수 없습니다.`,`error`)}}function sC(){document.getElementById(`open-live-btn`)?.addEventListener(`click`,()=>{$(`🎥 화상 강의실 연결 중...`,`secondary`)}),document.querySelectorAll(`.attendance-btn`).forEach(e=>{e.addEventListener(`click`,()=>{e.innerHTML=`<span class="material-symbols-outlined text-[15px]">done_all</span><span>출석 완료</span>`,e.classList.add(`bg-secondary`,`text-on-secondary`),$(`출석이 확인되었습니다.`,`secondary`)})})}var cC=`dashboard`,lC=[];function uC(){document.querySelectorAll(`.admin-sub-tab`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.dataset.subTab;RC(t)})}),RC(`dashboard`)}var dC=[],fC=null,pC=null,mC=null,hC=[],gC=[];async function _C(){await MC(),document.querySelectorAll(`.content-tab`).forEach(e=>{e.addEventListener(`click`,()=>{jC(e.dataset.tab)})}),document.getElementById(`btn-new-course`)?.addEventListener(`click`,()=>{PC()}),document.getElementById(`btn-close-course-modal`)?.addEventListener(`click`,FC),document.getElementById(`modal-course-overlay`)?.addEventListener(`click`,FC),document.getElementById(`btn-cancel-course`)?.addEventListener(`click`,FC),document.getElementById(`form-course`)?.addEventListener(`submit`,IC);let e=document.getElementById(`select-course-for-lessons`);if(console.log(`📌 차시 관리 초기화:`,{selectExists:!!e,coursesCount:dC.length,courses:dC.map(e=>({id:e.id,title:e.title}))}),e){let t=`<option value="">강의를 선택하세요</option>`+dC.map(e=>`<option value="${e.id}">${e.title}</option>`).join(``);console.log(`✏️ 드롭다운 HTML 설정:`,t),e.innerHTML=t,e.addEventListener(`change`,async e=>{console.log(`🔄 드롭다운 change 이벤트 발생:`,e.target.value),fC=e.target.value,await vC()})}document.getElementById(`btn-new-lesson`)?.addEventListener(`click`,()=>{fC?OC():$(`먼저 강의를 선택해주세요.`,`info`)}),document.getElementById(`btn-close-lesson-modal`)?.addEventListener(`click`,kC),document.getElementById(`modal-lesson-overlay`)?.addEventListener(`click`,kC),document.getElementById(`btn-cancel-lesson`)?.addEventListener(`click`,kC),document.getElementById(`form-lesson`)?.addEventListener(`submit`,AC),document.getElementById(`btn-new-part`)?.addEventListener(`click`,()=>{SC()}),document.getElementById(`btn-close-part-modal`)?.addEventListener(`click`,CC),document.getElementById(`modal-part-overlay`)?.addEventListener(`click`,CC),document.getElementById(`btn-cancel-part`)?.addEventListener(`click`,CC),document.getElementById(`form-part`)?.addEventListener(`submit`,TC)}async function vC(){if(!fC)console.warn(`⚠️ selectedCourseForLessons가 설정되지 않음`);else try{console.log(`📚 차시 목록 로드 시작:`,fC),hC=await vS(fC),console.log(`✅ 차시 데이터 조회 완료:`,hC),yC(hC)}catch(e){console.error(`❌ 차시 목록 로드 실패:`,e),$(`차시 목록을 불러올 수 없습니다.`,`error`)}}function yC(e){let t=document.getElementById(`lessons-list-container`);if(console.log(`🎬 renderLessonsList 호출:`,{lessonsCount:e.length,containerExists:!!t,lessons:e.map(e=>({id:e.id,number:e.lessonNumber,title:e.title}))}),!t){console.error(`❌ lessons-list-container를 찾을 수 없습니다!`),console.log(`📍 현재 DOM:`,document.body.innerHTML.substring(0,500));return}if(console.log(`✅ container 찾음. 렌더링 시작...`),e.length===0){t.innerHTML=`
       <div class="col-span-full flex flex-col items-center justify-center py-20 gap-3">
         <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_books</span>
         <p class="font-headline-md text-headline-md text-on-surface font-bold">차시가 없습니다</p>
@@ -1453,7 +1454,7 @@ Total Duration: ${c-l}ms`),K.resolve({didRun:!0,sequenceNumbersCollected:r,targe
               </button>
             </div>
           </div>
-        `).join(``),n.querySelectorAll(`.btn-edit-part-inline`).forEach(t=>{t.addEventListener(`click`,n=>{n.stopPropagation();let r=t.dataset.partId,i=gC.find(e=>e.id===r);i&&(pC=e.id,SC(i))})}),n.querySelectorAll(`.btn-delete-part-inline`).forEach(n=>{n.addEventListener(`click`,async r=>{r.stopPropagation();let i=n.dataset.partId;if(confirm(`이 파트를 삭제하시겠습니까?`))try{(await TS(i)).success?($(`파트가 삭제되었습니다.`,`success`),await bC(e,t)):$(`파트 삭제에 실패했습니다.`,`error`)}catch(e){console.error(`❌ 파트 삭제 실패:`,e),$(`파트 삭제 중 오류가 발생했습니다.`,`error`)}})});let r=t.querySelector(`.btn-add-part`);r&&r.addEventListener(`click`,t=>{t.stopPropagation(),pC=e.id,SC()})}else xC(gC)}catch(e){console.error(`❌ 파트 목록 로드 실패:`,e),$(`파트 목록을 불러올 수 없습니다.`,`error`)}}function xC(e){let t=document.getElementById(`parts-list`);t&&(e.length===0?t.innerHTML=`<div class="text-center py-8 text-on-surface-variant">파트가 없습니다</div>`:(t.innerHTML=e.map(e=>`
+        `).join(``),n.querySelectorAll(`.btn-edit-part-inline`).forEach(t=>{t.addEventListener(`click`,n=>{n.stopPropagation();let r=t.dataset.partId,i=gC.find(e=>e.id===r);console.log(`📝 파트 편집 클릭:`,{partId:r,part:i,폼찾기:!!document.getElementById(`form-part`)}),i&&(pC=e.id,SC(i))})}),n.querySelectorAll(`.btn-delete-part-inline`).forEach(n=>{n.addEventListener(`click`,async r=>{r.stopPropagation();let i=n.dataset.partId;if(confirm(`이 파트를 삭제하시겠습니까?`))try{(await TS(i)).success?($(`파트가 삭제되었습니다.`,`success`),await bC(e,t)):$(`파트 삭제에 실패했습니다.`,`error`)}catch(e){console.error(`❌ 파트 삭제 실패:`,e),$(`파트 삭제 중 오류가 발생했습니다.`,`error`)}})});let r=t.querySelector(`.btn-add-part`);console.log(`🔍 파트 추가 버튼 찾기:`,{버튼찾음:!!r,버튼요소:r}),r&&r.addEventListener(`click`,t=>{t.stopPropagation(),console.log(`➕ 파트 추가 클릭:`,{selectedLessonForParts:e.id}),pC=e.id,SC()})}else xC(gC)}catch(e){console.error(`❌ 파트 목록 로드 실패:`,e),$(`파트 목록을 불러올 수 없습니다.`,`error`)}}function xC(e){let t=document.getElementById(`parts-list`);t&&(e.length===0?t.innerHTML=`<div class="text-center py-8 text-on-surface-variant">파트가 없습니다</div>`:(t.innerHTML=e.map(e=>`
     <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between gap-3">
       <div class="flex-1">
         <h4 class="font-label-md text-label-md text-on-surface font-bold">${e.partName}</h4>
@@ -1468,7 +1469,7 @@ Total Duration: ${c-l}ms`),K.resolve({didRun:!0,sequenceNumbersCollected:r,targe
         </button>
       </div>
     </div>
-  `).join(``),t.querySelectorAll(`.btn-edit-part`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.dataset.partId,n=gC.find(e=>e.id===t);n&&SC(n)})}),t.querySelectorAll(`.btn-delete-part`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.dataset.partId;confirm(`이 파트를 삭제하시겠습니까?`)&&await DC(t)})})))}function SC(e=null){let t=document.getElementById(`form-part`);t&&(e?(mC=e.id,document.getElementById(`input-part-type`).value=e.partType,document.getElementById(`input-part-name`).value=e.partName,document.getElementById(`input-part-youtube-id`).value=e.youtubeId,document.getElementById(`input-part-duration`).value=e.duration,document.getElementById(`input-part-description`).value=e.description||``):(mC=null,t.reset()),window.scrollTo(0,0),t.classList.remove(`hidden`))}function CC(){document.getElementById(`form-part`)?.classList.add(`hidden`),mC=null}function wC(e){if(!e)return``;if(/^[a-zA-Z0-9_-]{11}$/.test(e.trim()))return e.trim();let t=``,n=e.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);return n?.[1]&&(t=n[1]),t}async function TC(e){e.preventDefault();let t=document.getElementById(`input-part-type`).value,n=document.getElementById(`input-part-name`).value,r=document.getElementById(`input-part-youtube-id`).value,i=wC(r),a=parseInt(document.getElementById(`input-part-duration`).value),o=document.getElementById(`input-part-description`).value;if(!pC)$(`차시가 선택되지 않았습니다.`,`error`);else if(!i)$(`유효한 YouTube URL 또는 ID를 입력하세요.`,`error`);else try{if(mC){let e=await wS(mC,{partType:t,partName:n,youtubeId:i,duration:a,description:o});e.success?($(`파트가 수정되었습니다.`,`success`),CC(),await EC(pC)):$(`파트 수정 실패: ${e.error}`,`error`)}else{let e=await SS({lessonId:pC,courseId:fC,partType:t,partName:n,youtubeId:i,duration:a,description:o,order:gC.length+1});e.success?($(`파트가 추가되었습니다.`,`success`),CC(),await EC(pC)):$(`파트 추가 실패: ${e.error}`,`error`)}}catch(e){console.error(`❌ 파트 제출 중 오류:`,e),$(`파트 처리 중 오류가 발생했습니다.`,`error`)}}async function EC(e){let t=hC.find(t=>t.id===e);if(!t)return;let n=document.querySelector(`[data-lesson-id="${e}"]`);if(!n)return;let r=n.parentElement?.querySelector(`.lesson-parts-section`);r&&await bC(t,r)}async function DC(e){let t=await TS(e);t.success?($(`파트가 삭제되었습니다.`,`success`),await bC({id:pC})):$(`파트 삭제 실패: ${t.error}`,`error`)}function OC(e=null){let t=document.getElementById(`modal-lesson-form`);if(!t)return;let n=document.getElementById(`modal-lesson-title`),r=document.getElementById(`form-lesson`);e?(n.textContent=`차시 편집`,document.getElementById(`input-lesson-number`).value=e.lessonNumber,document.getElementById(`input-lesson-title`).value=e.title,document.getElementById(`input-lesson-goal`).value=e.goal,document.getElementById(`input-lesson-letters`).value=e.learnLetters,r.dataset.lessonId=e.id):(n.textContent=`새 차시 만들기`,r.reset(),delete r.dataset.lessonId),window.scrollTo(0,0),t.classList.remove(`hidden`)}function kC(){document.getElementById(`modal-lesson-form`)?.classList.add(`hidden`)}async function AC(e){e.preventDefault();let t=parseInt(document.getElementById(`input-lesson-number`).value),n=document.getElementById(`input-lesson-title`).value,r=document.getElementById(`input-lesson-goal`).value,i=document.getElementById(`input-lesson-letters`).value;if(!fC){$(`강의가 선택되지 않았습니다.`,`error`);return}let a=document.getElementById(`form-lesson`).dataset.lessonId;if(a){let e=await yS(a,{lessonNumber:t,title:n,goal:r,learnLetters:i});e.success?($(`차시가 수정되었습니다.`,`success`),kC(),await vC()):$(`차시 수정 실패: ${e.error}`,`error`)}else{let e=await _S({courseId:fC,lessonNumber:t,title:n,goal:r,learnLetters:i});e.success?($(`차시가 추가되었습니다.`,`success`),kC(),await vC()):$(`차시 추가 실패: ${e.error}`,`error`)}}function jC(e){document.querySelectorAll(`.content-tab`).forEach(t=>{t.dataset.tab===e?(t.classList.add(`border-secondary`,`text-secondary`),t.classList.remove(`border-transparent`,`text-on-surface-variant`)):(t.classList.remove(`border-secondary`,`text-secondary`),t.classList.add(`border-transparent`,`text-on-surface-variant`))}),document.querySelectorAll(`.content-tab-panel`).forEach(e=>{e.classList.add(`hidden`)}),e===`courses`?document.getElementById(`courses-tab`)?.classList.remove(`hidden`):e===`lessons`&&document.getElementById(`lessons-tab`)?.classList.remove(`hidden`)}async function MC(){try{dC=await mS(),NC(dC)}catch(e){console.error(`❌ 강의 목록 로드 실패:`,e),$(`강의 목록을 불러올 수 없습니다.`,`error`)}}function NC(e){let t=document.getElementById(`courses-list`);t&&(e.length===0?t.innerHTML=`
+  `).join(``),t.querySelectorAll(`.btn-edit-part`).forEach(e=>{e.addEventListener(`click`,()=>{let t=e.dataset.partId,n=gC.find(e=>e.id===t);n&&SC(n)})}),t.querySelectorAll(`.btn-delete-part`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.dataset.partId;confirm(`이 파트를 삭제하시겠습니까?`)&&await DC(t)})})))}function SC(e=null){let t=document.getElementById(`modal-part-form`);if(!t)return;let n=document.getElementById(`modal-part-title`),r=document.getElementById(`form-part`);e?(n.textContent=`파트 편집`,mC=e.id,document.getElementById(`input-part-type`).value=e.partType,document.getElementById(`input-part-name`).value=e.partName,document.getElementById(`input-part-youtube-id`).value=e.youtubeId,document.getElementById(`input-part-duration`).value=e.duration,document.getElementById(`input-part-description`).value=e.description||``):(n.textContent=`파트 추가`,mC=null,r.reset()),window.scrollTo(0,0),t.classList.remove(`hidden`)}function CC(){document.getElementById(`modal-part-form`)?.classList.add(`hidden`),mC=null}function wC(e){if(!e)return``;if(/^[a-zA-Z0-9_-]{11}$/.test(e.trim()))return e.trim();let t=``,n=e.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);return n?.[1]&&(t=n[1]),t}async function TC(e){e.preventDefault();let t=document.getElementById(`input-part-type`).value,n=document.getElementById(`input-part-name`).value,r=document.getElementById(`input-part-youtube-id`).value,i=wC(r),a=parseInt(document.getElementById(`input-part-duration`).value),o=document.getElementById(`input-part-description`).value;if(!pC)$(`차시가 선택되지 않았습니다.`,`error`);else if(!i)$(`유효한 YouTube URL 또는 ID를 입력하세요.`,`error`);else try{if(mC){let e=await wS(mC,{partType:t,partName:n,youtubeId:i,duration:a,description:o});e.success?($(`파트가 수정되었습니다.`,`success`),CC(),await EC(pC)):$(`파트 수정 실패: ${e.error}`,`error`)}else{let e=await SS({lessonId:pC,courseId:fC,partType:t,partName:n,youtubeId:i,duration:a,description:o,order:gC.length+1});e.success?($(`파트가 추가되었습니다.`,`success`),CC(),await EC(pC)):$(`파트 추가 실패: ${e.error}`,`error`)}}catch(e){console.error(`❌ 파트 제출 중 오류:`,e),$(`파트 처리 중 오류가 발생했습니다.`,`error`)}}async function EC(e){let t=hC.find(t=>t.id===e);if(!t)return;let n=document.querySelector(`[data-lesson-id="${e}"]`);if(!n)return;let r=n.parentElement?.querySelector(`.lesson-parts-section`);r&&await bC(t,r)}async function DC(e){let t=await TS(e);t.success?($(`파트가 삭제되었습니다.`,`success`),await bC({id:pC})):$(`파트 삭제 실패: ${t.error}`,`error`)}function OC(e=null){let t=document.getElementById(`modal-lesson-form`);if(!t)return;let n=document.getElementById(`modal-lesson-title`),r=document.getElementById(`form-lesson`);e?(n.textContent=`차시 편집`,document.getElementById(`input-lesson-number`).value=e.lessonNumber,document.getElementById(`input-lesson-title`).value=e.title,document.getElementById(`input-lesson-goal`).value=e.goal,document.getElementById(`input-lesson-letters`).value=e.learnLetters,r.dataset.lessonId=e.id):(n.textContent=`새 차시 만들기`,r.reset(),delete r.dataset.lessonId),window.scrollTo(0,0),t.classList.remove(`hidden`)}function kC(){document.getElementById(`modal-lesson-form`)?.classList.add(`hidden`)}async function AC(e){e.preventDefault();let t=parseInt(document.getElementById(`input-lesson-number`).value),n=document.getElementById(`input-lesson-title`).value,r=document.getElementById(`input-lesson-goal`).value,i=document.getElementById(`input-lesson-letters`).value;if(!fC){$(`강의가 선택되지 않았습니다.`,`error`);return}let a=document.getElementById(`form-lesson`).dataset.lessonId;if(a){let e=await yS(a,{lessonNumber:t,title:n,goal:r,learnLetters:i});e.success?($(`차시가 수정되었습니다.`,`success`),kC(),await vC()):$(`차시 수정 실패: ${e.error}`,`error`)}else{let e=await _S({courseId:fC,lessonNumber:t,title:n,goal:r,learnLetters:i});e.success?($(`차시가 추가되었습니다.`,`success`),kC(),await vC()):$(`차시 추가 실패: ${e.error}`,`error`)}}function jC(e){document.querySelectorAll(`.content-tab`).forEach(t=>{t.dataset.tab===e?(t.classList.add(`border-secondary`,`text-secondary`),t.classList.remove(`border-transparent`,`text-on-surface-variant`)):(t.classList.remove(`border-secondary`,`text-secondary`),t.classList.add(`border-transparent`,`text-on-surface-variant`))}),document.querySelectorAll(`.content-tab-panel`).forEach(e=>{e.classList.add(`hidden`)}),e===`courses`?document.getElementById(`courses-tab`)?.classList.remove(`hidden`):e===`lessons`&&document.getElementById(`lessons-tab`)?.classList.remove(`hidden`)}async function MC(){try{dC=await mS(),NC(dC)}catch(e){console.error(`❌ 강의 목록 로드 실패:`,e),$(`강의 목록을 불러올 수 없습니다.`,`error`)}}function NC(e){let t=document.getElementById(`courses-list`);t&&(e.length===0?t.innerHTML=`
       <div class="col-span-full flex flex-col items-center justify-center py-20 gap-3">
         <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_books</span>
         <p class="font-headline-md text-headline-md text-on-surface font-bold">강의가 없습니다</p>

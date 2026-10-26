@@ -715,10 +715,10 @@ async function initContentManagementView() {
     showPartForm();
   });
 
-  // 파트 폼 캔슬
-  document.getElementById('btn-cancel-part')?.addEventListener('click', () => {
-    hidePartForm();
-  });
+  // 파트 모달 닫기 버튼
+  document.getElementById('btn-close-part-modal')?.addEventListener('click', hidePartForm);
+  document.getElementById('modal-part-overlay')?.addEventListener('click', hidePartForm);
+  document.getElementById('btn-cancel-part')?.addEventListener('click', hidePartForm);
 
   // 파트 폼 제출
   document.getElementById('form-part')?.addEventListener('submit', handlePartSubmit);
@@ -898,6 +898,7 @@ async function loadPartsForSelectedLesson(lesson, partsSection) {
           e.stopPropagation();
           const partId = btn.dataset.partId;
           const part = allPartsForSelectedLesson.find(p => p.id === partId);
+          console.log('📝 파트 편집 클릭:', { partId, part, 폼찾기: !!document.getElementById('form-part') });
           if (part) {
             selectedLessonForParts = lesson.id;
             showPartForm(part);
@@ -929,9 +930,11 @@ async function loadPartsForSelectedLesson(lesson, partsSection) {
 
       // 파트 추가 버튼 이벤트 바인딩
       const addPartBtn = partsSection.querySelector('.btn-add-part');
+      console.log('🔍 파트 추가 버튼 찾기:', { 버튼찾음: !!addPartBtn, 버튼요소: addPartBtn });
       if (addPartBtn) {
         addPartBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          console.log('➕ 파트 추가 클릭:', { selectedLessonForParts: lesson.id });
           selectedLessonForParts = lesson.id;
           showPartForm();
         });
@@ -994,10 +997,14 @@ function renderPartsList(parts) {
 }
 
 function showPartForm(part = null) {
+  const modal = document.getElementById('modal-part-form');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('modal-part-title');
   const form = document.getElementById('form-part');
-  if (!form) return;
 
   if (part) {
+    titleEl.textContent = '파트 편집';
     selectedPartForEdit = part.id;
     document.getElementById('input-part-type').value = part.partType;
     document.getElementById('input-part-name').value = part.partName;
@@ -1005,17 +1012,18 @@ function showPartForm(part = null) {
     document.getElementById('input-part-duration').value = part.duration;
     document.getElementById('input-part-description').value = part.description || '';
   } else {
+    titleEl.textContent = '파트 추가';
     selectedPartForEdit = null;
     form.reset();
   }
 
   window.scrollTo(0, 0);
-  form.classList.remove('hidden');
+  modal.classList.remove('hidden');
 }
 
 function hidePartForm() {
-  const form = document.getElementById('form-part');
-  form?.classList.add('hidden');
+  const modal = document.getElementById('modal-part-form');
+  modal?.classList.add('hidden');
   selectedPartForEdit = null;
 }
 
@@ -1030,8 +1038,8 @@ function extractYoutubeId(input) {
   // URL에서 ID 추출
   let id = '';
 
-  // youtube.com/watch?v=VIDEO_ID
-  const match1 = input.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  // https://youtube.com/watch?v=VIDEO_ID 또는 youtube.com/shorts/VIDEO_ID 등 다양한 형식 지원
+  const match1 = input.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
   if (match1?.[1]) {
     id = match1[1];
   }
