@@ -7,11 +7,18 @@ import { renderEducatorView } from './views/educatorView.js';
 import { renderAdminView } from './views/adminView.js';
 import { renderUserManagementView, renderUserCard } from './views/userManagementView.js';
 import { renderLoginView } from './views/loginView.js';
+import { renderContentManagementView } from './views/contentManagementView.js';
 import {
   getCourses,
   getReviews,
   submitConsultation,
-  submitLevelTest
+  submitLevelTest,
+  getAllTeachingCourses,
+  createTeachingCourse,
+  updateTeachingCourse,
+  deleteTeachingCourse,
+  getTeachingLessonsByCourseId,
+  createTeachingLesson
 } from './services/courseService.js';
 import { createInvitation, copyToClipboard } from './services/invitationService.js';
 import { LEVEL_TEST_QUESTIONS, SEED_COURSES } from './services/seedData.js';
@@ -418,6 +425,199 @@ function initAdminView() {
   switchAdminSubTab('dashboard');
 }
 
+// ── 교육콘텐츠 관리 초기화 ─────────────────────────────────────────────────────
+let allTeachingCourses = [];
+
+async function initContentManagementView() {
+  // 강의 목록 로드
+  await loadTeachingCourses();
+
+  // 탭 버튼 이벤트
+  document.querySelectorAll('.content-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchContentTab(btn.dataset.tab);
+    });
+  });
+
+  // 새 강의 버튼
+  document.getElementById('btn-new-course')?.addEventListener('click', () => {
+    showCourseModal();
+  });
+
+  // 모달 닫기 버튼
+  document.getElementById('btn-close-course-modal')?.addEventListener('click', closeCourseModal);
+  document.getElementById('modal-course-overlay')?.addEventListener('click', closeCourseModal);
+  document.getElementById('btn-cancel-course')?.addEventListener('click', closeCourseModal);
+
+  // 강의 폼 제출
+  document.getElementById('form-course')?.addEventListener('submit', handleCourseSubmit);
+}
+
+function switchContentTab(tab) {
+  // 탭 버튼 스타일 업데이트
+  document.querySelectorAll('.content-tab').forEach(btn => {
+    if (btn.dataset.tab === tab) {
+      btn.classList.add('border-secondary', 'text-secondary');
+      btn.classList.remove('border-transparent', 'text-on-surface-variant');
+    } else {
+      btn.classList.remove('border-secondary', 'text-secondary');
+      btn.classList.add('border-transparent', 'text-on-surface-variant');
+    }
+  });
+
+  // 탭 콘텐츠 표시/숨김
+  document.querySelectorAll('.content-tab-panel').forEach(panel => {
+    panel.classList.add('hidden');
+  });
+
+  if (tab === 'courses') {
+    document.getElementById('courses-tab')?.classList.remove('hidden');
+  } else if (tab === 'lessons') {
+    document.getElementById('lessons-tab')?.classList.remove('hidden');
+  }
+}
+
+async function loadTeachingCourses() {
+  try {
+    allTeachingCourses = await getAllTeachingCourses();
+    renderCoursesList(allTeachingCourses);
+  } catch (error) {
+    console.error('❌ 강의 목록 로드 실패:', error);
+    showToast('강의 목록을 불러올 수 없습니다.', 'error');
+  }
+}
+
+function renderCoursesList(courses) {
+  const container = document.getElementById('courses-list');
+  if (!container) return;
+
+  if (courses.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-20 gap-3">
+        <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_books</span>
+        <p class="font-headline-md text-headline-md text-on-surface font-bold">강의가 없습니다</p>
+        <p class="font-body-md text-on-surface-variant">새 강의 버튼을 클릭해서 강의를 추가하세요</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = courses.map(course => `
+    <div class="bg-surface-container-lowest rounded-2xl border border-surface-container p-4 flex flex-col gap-3 hover:shadow-md transition-shadow">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex-1">
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold line-clamp-2">${course.title}</h3>
+          <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">${course.level || '미정'} • ${course.totalLessons || 0}차시</p>
+        </div>
+        <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-bold">
+          ${course.instructor || '미정'}
+        </span>
+      </div>
+
+      <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${course.description}</p>
+
+      <div class="flex gap-2 mt-2">
+        <button class="flex-1 h-10 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer hover:bg-primary/90 transition-colors btn-edit-course" data-course-id="${course.id}">
+          편집
+        </button>
+        <button class="flex-1 h-10 rounded-xl bg-error/10 text-error font-label-md text-label-md font-bold cursor-pointer hover:bg-error/20 transition-colors btn-delete-course" data-course-id="${course.id}">
+          삭제
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  // 편집/삭제 버튼 이벤트
+  container.querySelectorAll('.btn-edit-course').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const courseId = btn.dataset.courseId;
+      const course = allTeachingCourses.find(c => c.id === courseId);
+      showCourseModal(course);
+    });
+  });
+
+  container.querySelectorAll('.btn-delete-course').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const courseId = btn.dataset.courseId;
+      if (confirm('이 강의를 삭제하시겠습니까? (관련 차시도 함께 삭제됩니다)')) {
+        await handleDeleteCourse(courseId);
+      }
+    });
+  });
+}
+
+function showCourseModal(course = null) {
+  const modal = document.getElementById('modal-course-form');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('modal-course-title');
+  const form = document.getElementById('form-course');
+
+  if (course) {
+    titleEl.textContent = '강의 편집';
+    document.getElementById('input-course-title').value = course.title;
+    document.getElementById('input-course-description').value = course.description;
+    document.getElementById('input-course-level').value = course.level;
+    document.getElementById('input-course-lessons').value = course.totalLessons;
+    document.getElementById('input-course-instructor').value = course.instructor || '';
+    form.dataset.courseId = course.id;
+  } else {
+    titleEl.textContent = '새 강의 만들기';
+    form.reset();
+    delete form.dataset.courseId;
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeCourseModal() {
+  const modal = document.getElementById('modal-course-form');
+  modal?.classList.add('hidden');
+}
+
+async function handleCourseSubmit(e) {
+  e.preventDefault();
+
+  const title = document.getElementById('input-course-title').value.trim();
+  const description = document.getElementById('input-course-description').value.trim();
+  const level = document.getElementById('input-course-level').value;
+  const totalLessons = parseInt(document.getElementById('input-course-lessons').value);
+  const instructor = document.getElementById('input-course-instructor').value.trim();
+
+  if (!title || !description || !level || !totalLessons) {
+    showToast('필수 항목을 모두 입력해주세요.', 'error');
+    return;
+  }
+
+  const courseData = { title, description, level, totalLessons, instructor };
+  const courseId = e.target.dataset.courseId;
+
+  let result;
+  if (courseId) {
+    result = await updateTeachingCourse(courseId, courseData);
+  } else {
+    result = await createTeachingCourse(courseData);
+  }
+
+  if (result.success) {
+    showToast(courseId ? '강의가 수정되었습니다.' : '강의가 생성되었습니다.', 'secondary');
+    closeCourseModal();
+    await loadTeachingCourses();
+  } else {
+    showToast('오류: ' + (result.error || '작업 실패'), 'error');
+  }
+}
+
+async function handleDeleteCourse(courseId) {
+  const result = await deleteTeachingCourse(courseId);
+  if (result.success) {
+    showToast('강의가 삭제되었습니다.', 'secondary');
+    await loadTeachingCourses();
+  } else {
+    showToast('오류: ' + (result.error || '삭제 실패'), 'error');
+  }
+}
+
 async function switchAdminSubTab(subTab) {
   currentAdminSubTab = subTab;
   const subContent = document.getElementById('admin-sub-content');
@@ -443,13 +643,8 @@ async function switchAdminSubTab(subTab) {
       await initUserManagementView();
       break;
     case 'content':
-      subContent.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-20 gap-3">
-          <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_books</span>
-          <p class="font-headline-md text-headline-md text-on-surface font-bold">교육 콘텐츠 관리</p>
-          <p class="font-body-md text-on-surface-variant">준비 중입니다.</p>
-        </div>
-      `;
+      subContent.innerHTML = renderContentManagementView();
+      initContentManagementView();
       break;
     case 'analytics':
       subContent.innerHTML = `
