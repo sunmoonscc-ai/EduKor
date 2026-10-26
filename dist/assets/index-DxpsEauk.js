@@ -285,7 +285,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                     <div style="position: relative; width: 100%; aspect-ratio: 9/16; max-width: 300px; margin: 0 auto; background: #000;">
                       <iframe
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                        src="https://www.youtube.com/embed/${e.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0"
+                        src="https://www.youtube.com/embed/${e.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0&cc_load_policy=0&loop=0"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
                         allowfullscreen
@@ -297,7 +297,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                     <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
                       <iframe
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                        src="https://www.youtube.com/embed/${e.youtubeId}?fs=1&rel=0&modestbranding=1"
+                        src="https://www.youtube.com/embed/${e.youtubeId}?fs=1&rel=0&modestbranding=1&cc_load_policy=0&loop=0"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
                         allowfullscreen
@@ -370,7 +370,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
               <iframe
                 id="shortPlayer"
                 class="shorts-player"
-                src="https://www.youtube.com/embed/${e.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0"
+                src="https://www.youtube.com/embed/${e.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0&cc_load_policy=0&loop=0"
                 frameborder="0"
                 title="YouTube Shorts"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
@@ -384,7 +384,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
             <!-- 일반 YouTube: 16:9 가로 비율 (전체 화면) -->
             <iframe
               style="width: 100%; height: 100%;"
-              src="https://www.youtube.com/embed/${e.youtubeId}?fs=1&autoplay=1&rel=0&modestbranding=1&playsinline=1"
+              src="https://www.youtube.com/embed/${e.youtubeId}?fs=1&autoplay=1&rel=0&modestbranding=1&playsinline=1&cc_load_policy=0&loop=0"
               frameborder="0"
               title="YouTube Video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
