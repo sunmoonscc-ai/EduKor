@@ -2,7 +2,7 @@
  * main.js — 한누리 한국어학당 앱 진입점 & 라우터
  */
 import { renderLandingView } from './views/landingView.js';
-import { renderLearnerView } from './views/learnerView.js';
+import { renderLearnerView, renderLessonDetailModal } from './views/learnerView.js';
 import { renderEducatorView } from './views/educatorView.js';
 import { renderAdminView } from './views/adminView.js';
 import { renderUserManagementView, renderUserCard } from './views/userManagementView.js';
@@ -18,7 +18,13 @@ import {
   updateTeachingCourse,
   deleteTeachingCourse,
   getTeachingLessonsByCourseId,
-  createTeachingLesson
+  createTeachingLesson,
+  updateTeachingLesson,
+  deleteTeachingLesson,
+  createLessonPart,
+  getLessonParts,
+  updateLessonPart,
+  deleteLessonPart
 } from './services/courseService.js';
 import { createInvitation, copyToClipboard } from './services/invitationService.js';
 import { LEVEL_TEST_QUESTIONS, SEED_COURSES } from './services/seedData.js';
@@ -543,9 +549,60 @@ async function loadLessons(courseId) {
   }
 }
 
-function showLessonDetail(lesson) {
-  showToast(`${lesson.lessonNumber}차시: ${lesson.title}`, 'secondary');
-  // 향후: 상세한 차시 학습 페이지로 이동
+async function showLessonDetail(lesson) {
+  try {
+    // 레슨 파트 로드
+    const parts = await getLessonParts(lesson.id);
+
+    // 모달 HTML 생성
+    const modalHTML = renderLessonDetailModal(lesson, parts);
+
+    // 뷰에 모달 추가
+    viewRoot.insertAdjacentHTML('afterend', modalHTML);
+
+    // 모달 표시
+    const modal = document.getElementById('modal-lesson-detail');
+    if (modal) {
+      modal.classList.remove('hidden');
+
+      // 닫기 버튼 이벤트
+      document.getElementById('btn-close-lesson-modal')?.addEventListener('click', () => {
+        modal.remove();
+      });
+
+      document.getElementById('modal-lesson-overlay')?.addEventListener('click', () => {
+        modal.remove();
+      });
+
+      // 파트 탭 클릭 이벤트
+      document.querySelectorAll('.lesson-part-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const partId = tab.dataset.partId;
+          const partIndex = parseInt(tab.dataset.partIndex);
+
+          // 탭 스타일 업데이트
+          document.querySelectorAll('.lesson-part-tab').forEach(t => {
+            if (t.dataset.partId === partId) {
+              t.classList.add('border-secondary', 'text-secondary');
+              t.classList.remove('border-transparent', 'text-on-surface-variant');
+            } else {
+              t.classList.remove('border-secondary', 'text-secondary');
+              t.classList.add('border-transparent', 'text-on-surface-variant');
+            }
+          });
+
+          // 콘텐츠 표시/숨김
+          document.querySelectorAll('.lesson-part-content').forEach(content => {
+            content.classList.add('hidden');
+          });
+          document.getElementById(`part-content-${partId}`)?.classList.remove('hidden');
+        });
+      });
+    }
+  } catch (error) {
+    console.error('❌ 레슨 상세 로드 실패:', error);
+    showToast('강의를 불러올 수 없습니다.', 'error');
+  }
 }
 
 // ── Educator View Init ─────────────────────────────────────────────────────────
@@ -584,6 +641,11 @@ function initAdminView() {
 
 // ── 교육콘텐츠 관리 초기화 ─────────────────────────────────────────────────────
 let allTeachingCourses = [];
+let selectedCourseForLessons = null;
+let selectedLessonForParts = null;
+let selectedPartForEdit = null;
+let allLessonsForSelectedCourse = [];
+let allPartsForSelectedLesson = [];
 
 async function initContentManagementView() {
   // 강의 목록 로드
@@ -608,6 +670,268 @@ async function initContentManagementView() {
 
   // 강의 폼 제출
   document.getElementById('form-course')?.addEventListener('submit', handleCourseSubmit);
+
+  // 차시 관리 탭 이벤트
+  const coursesSelectForLessons = document.getElementById('select-course-for-lessons');
+  if (coursesSelectForLessons) {
+    coursesSelectForLessons.innerHTML = '<option value="">강의를 선택하세요</option>' +
+      allTeachingCourses.map(course => `<option value="${course.id}">${course.title}</option>`).join('');
+
+    coursesSelectForLessons.addEventListener('change', async (e) => {
+      selectedCourseForLessons = e.target.value;
+      await loadLessonsForSelectedCourse();
+    });
+  }
+
+  // 새 차시 버튼
+  document.getElementById('btn-new-lesson')?.addEventListener('click', () => {
+    if (!selectedCourseForLessons) {
+      showToast('먼저 강의를 선택해주세요.', 'info');
+      return;
+    }
+    showLessonModal();
+  });
+
+  // 파트 추가 버튼
+  document.getElementById('btn-new-part')?.addEventListener('click', () => {
+    showPartForm();
+  });
+
+  // 파트 폼 캔슬
+  document.getElementById('btn-cancel-part')?.addEventListener('click', () => {
+    hidePartForm();
+  });
+
+  // 파트 폼 제출
+  document.getElementById('form-part')?.addEventListener('submit', handlePartSubmit);
+}
+
+async function loadLessonsForSelectedCourse() {
+  if (!selectedCourseForLessons) return;
+
+  try {
+    allLessonsForSelectedCourse = await getTeachingLessonsByCourseId(selectedCourseForLessons);
+    renderLessonsList(allLessonsForSelectedCourse);
+  } catch (error) {
+    console.error('❌ 차시 목록 로드 실패:', error);
+    showToast('차시 목록을 불러올 수 없습니다.', 'error');
+  }
+}
+
+function renderLessonsList(lessons) {
+  const container = document.getElementById('lessons-list-container');
+  if (!container) return;
+
+  if (lessons.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-20 gap-3">
+        <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_books</span>
+        <p class="font-headline-md text-headline-md text-on-surface font-bold">차시가 없습니다</p>
+        <p class="font-body-md text-on-surface-variant">새 차시 버튼을 클릭해서 차시를 추가하세요</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = lessons.map(lesson => `
+    <div class="bg-surface-container-lowest rounded-2xl border border-surface-container p-4 flex flex-col gap-3 hover:shadow-md transition-shadow cursor-pointer lesson-card" data-lesson-id="${lesson.id}">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex-1">
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">차시 ${lesson.lessonNumber}</h3>
+          <h4 class="font-label-md text-label-md text-on-surface-variant mt-1">${lesson.title}</h4>
+        </div>
+        <button class="px-2 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm cursor-pointer hover:bg-surface-container-high btn-edit-lesson" data-lesson-id="${lesson.id}">
+          편집
+        </button>
+      </div>
+      <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">${lesson.goal}</p>
+      <p class="font-label-sm text-on-surface-variant">배울 글자: ${lesson.learnLetters}</p>
+    </div>
+  `).join('');
+
+  // 차시 카드 클릭 이벤트
+  container.querySelectorAll('.lesson-card').forEach(card => {
+    card.addEventListener('click', async () => {
+      const lessonId = card.dataset.lessonId;
+      const lesson = allLessonsForSelectedCourse.find(l => l.id === lessonId);
+      if (lesson) {
+        selectedLessonForParts = lessonId;
+        await loadPartsForSelectedLesson(lesson);
+        document.getElementById('parts-management-section')?.classList.remove('hidden');
+        document.getElementById('selected-lesson-title').textContent = `${lesson.lessonNumber}. ${lesson.title}`;
+      }
+    });
+  });
+
+  // 편집 버튼
+  container.querySelectorAll('.btn-edit-lesson').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const lessonId = btn.dataset.lessonId;
+      const lesson = allLessonsForSelectedCourse.find(l => l.id === lessonId);
+      if (lesson) {
+        showLessonModal(lesson);
+      }
+    });
+  });
+}
+
+async function loadPartsForSelectedLesson(lesson) {
+  try {
+    allPartsForSelectedLesson = await getLessonParts(lesson.id);
+    renderPartsList(allPartsForSelectedLesson);
+  } catch (error) {
+    console.error('❌ 파트 목록 로드 실패:', error);
+    showToast('파트 목록을 불러올 수 없습니다.', 'error');
+  }
+}
+
+function renderPartsList(parts) {
+  const container = document.getElementById('parts-list');
+  if (!container) return;
+
+  if (parts.length === 0) {
+    container.innerHTML = '<div class="text-center py-8 text-on-surface-variant">파트가 없습니다</div>';
+    return;
+  }
+
+  container.innerHTML = parts.map(part => `
+    <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between gap-3">
+      <div class="flex-1">
+        <h4 class="font-label-md text-label-md text-on-surface font-bold">${part.partName}</h4>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">⏱️ ${part.duration}분 • ${part.partType}</p>
+      </div>
+      <div class="flex gap-1">
+        <button class="px-2 py-1 rounded-lg bg-primary text-on-primary font-label-sm cursor-pointer hover:bg-primary/90 btn-edit-part" data-part-id="${part.id}">
+          수정
+        </button>
+        <button class="px-2 py-1 rounded-lg bg-error/10 text-error font-label-sm cursor-pointer hover:bg-error/20 btn-delete-part" data-part-id="${part.id}">
+          삭제
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  // 수정 버튼
+  container.querySelectorAll('.btn-edit-part').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const partId = btn.dataset.partId;
+      const part = allPartsForSelectedLesson.find(p => p.id === partId);
+      if (part) {
+        showPartForm(part);
+      }
+    });
+  });
+
+  // 삭제 버튼
+  container.querySelectorAll('.btn-delete-part').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const partId = btn.dataset.partId;
+      if (confirm('이 파트를 삭제하시겠습니까?')) {
+        await handleDeletePart(partId);
+      }
+    });
+  });
+}
+
+function showPartForm(part = null) {
+  const form = document.getElementById('form-part');
+  if (!form) return;
+
+  if (part) {
+    selectedPartForEdit = part.id;
+    document.getElementById('input-part-type').value = part.partType;
+    document.getElementById('input-part-name').value = part.partName;
+    document.getElementById('input-part-youtube-id').value = part.youtubeId;
+    document.getElementById('input-part-duration').value = part.duration;
+    document.getElementById('input-part-description').value = part.description || '';
+  } else {
+    selectedPartForEdit = null;
+    form.reset();
+  }
+
+  form.classList.remove('hidden');
+}
+
+function hidePartForm() {
+  const form = document.getElementById('form-part');
+  form?.classList.add('hidden');
+  selectedPartForEdit = null;
+}
+
+async function handlePartSubmit(e) {
+  e.preventDefault();
+
+  const partType = document.getElementById('input-part-type').value;
+  const partName = document.getElementById('input-part-name').value;
+  const youtubeId = document.getElementById('input-part-youtube-id').value;
+  const duration = parseInt(document.getElementById('input-part-duration').value);
+  const description = document.getElementById('input-part-description').value;
+
+  if (!selectedLessonForParts) {
+    showToast('차시가 선택되지 않았습니다.', 'error');
+    return;
+  }
+
+  if (selectedPartForEdit) {
+    // 파트 수정
+    const result = await updateLessonPart(selectedPartForEdit, {
+      partType,
+      partName,
+      youtubeId,
+      duration,
+      description
+    });
+
+    if (result.success) {
+      showToast('파트가 수정되었습니다.', 'success');
+      hidePartForm();
+      await loadPartsForSelectedLesson({ id: selectedLessonForParts });
+    } else {
+      showToast(`파트 수정 실패: ${result.error}`, 'error');
+    }
+  } else {
+    // 파트 생성
+    const result = await createLessonPart({
+      lessonId: selectedLessonForParts,
+      courseId: selectedCourseForLessons,
+      partType,
+      partName,
+      youtubeId,
+      duration,
+      description,
+      order: allPartsForSelectedLesson.length + 1
+    });
+
+    if (result.success) {
+      showToast('파트가 추가되었습니다.', 'success');
+      hidePartForm();
+      await loadPartsForSelectedLesson({ id: selectedLessonForParts });
+    } else {
+      showToast(`파트 추가 실패: ${result.error}`, 'error');
+    }
+  }
+}
+
+async function handleDeletePart(partId) {
+  const result = await deleteLessonPart(partId);
+
+  if (result.success) {
+    showToast('파트가 삭제되었습니다.', 'success');
+    await loadPartsForSelectedLesson({ id: selectedLessonForParts });
+  } else {
+    showToast(`파트 삭제 실패: ${result.error}`, 'error');
+  }
+}
+
+function showLessonModal(lesson = null) {
+  // 차시 모달은 차시 관리 탭에서 간단히 처리
+  // 현재는 빠른 구현을 위해 생략 (필요시 별도 폼 추가)
+  if (lesson) {
+    showToast('차시 편집 기능은 준비 중입니다.', 'info');
+  } else {
+    showToast('차시 추가 기능은 준비 중입니다.', 'info');
+  }
 }
 
 function switchContentTab(tab) {

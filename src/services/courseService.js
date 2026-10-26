@@ -334,12 +334,136 @@ export async function deleteTeachingLesson(lessonId) {
   }
 
   try {
+    // 관련 파트 삭제
+    const partsQuery = query(
+      collection(db, TEACHING_LESSON_PARTS_COLLECTION),
+      where('lessonId', '==', lessonId)
+    );
+    const partsSnapshot = await getDocs(partsQuery);
+    for (const partDoc of partsSnapshot.docs) {
+      await deleteDoc(partDoc.ref);
+    }
+
+    // 차시 삭제
     const docRef = doc(db, TEACHING_LESSONS_COLLECTION, lessonId);
     await deleteDoc(docRef);
     console.log('✅ 교육 차시 삭제됨:', lessonId);
     return { success: true };
   } catch (error) {
     console.error('❌ 교육 차시 삭제 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ── 차시별 파트 관리 (Lesson Parts Management) ────────────────────────────────
+
+const TEACHING_LESSON_PARTS_COLLECTION = 'teaching_lesson_parts';
+
+/**
+ * 차시 파트 생성 (열기, 듣고따라, 모양, 쓰기, 퀴즈, 숙제 등)
+ */
+export async function createLessonPart(partData) {
+  if (!isFirebaseConfigured || !db) {
+    return { success: false, error: 'Firebase not configured' };
+  }
+
+  try {
+    const docRef = await addDoc(collection(db, TEACHING_LESSON_PARTS_COLLECTION), {
+      ...partData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    console.log('✅ 차시 파트 생성됨:', docRef.id);
+    return { success: true, partId: docRef.id };
+  } catch (error) {
+    console.error('❌ 차시 파트 생성 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 특정 차시의 모든 파트 조회
+ */
+export async function getLessonParts(lessonId) {
+  if (!isFirebaseConfigured || !db) {
+    return [];
+  }
+
+  try {
+    const q = query(
+      collection(db, TEACHING_LESSON_PARTS_COLLECTION),
+      where('lessonId', '==', lessonId),
+      orderBy('order', 'asc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('❌ 차시 파트 조회 실패:', error);
+    return [];
+  }
+}
+
+/**
+ * 특정 파트 조회
+ */
+export async function getLessonPartById(partId) {
+  if (!isFirebaseConfigured || !db) {
+    return null;
+  }
+
+  try {
+    const docRef = doc(db, TEACHING_LESSON_PARTS_COLLECTION, partId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ 차시 파트 조회 실패:', error);
+    return null;
+  }
+}
+
+/**
+ * 차시 파트 수정
+ */
+export async function updateLessonPart(partId, updateData) {
+  if (!isFirebaseConfigured || !db) {
+    return { success: false, error: 'Firebase not configured' };
+  }
+
+  try {
+    const docRef = doc(db, TEACHING_LESSON_PARTS_COLLECTION, partId);
+    await updateDoc(docRef, {
+      ...updateData,
+      updatedAt: serverTimestamp()
+    });
+    console.log('✅ 차시 파트 수정됨:', partId);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ 차시 파트 수정 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 차시 파트 삭제
+ */
+export async function deleteLessonPart(partId) {
+  if (!isFirebaseConfigured || !db) {
+    return { success: false, error: 'Firebase not configured' };
+  }
+
+  try {
+    const docRef = doc(db, TEACHING_LESSON_PARTS_COLLECTION, partId);
+    await deleteDoc(docRef);
+    console.log('✅ 차시 파트 삭제됨:', partId);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ 차시 파트 삭제 실패:', error);
     return { success: false, error: error.message };
   }
 }

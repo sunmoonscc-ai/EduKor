@@ -1,14 +1,14 @@
 export function renderLearnerView() {
   return `
-    <div class="flex flex-col w-full pb-20">
+    <div class="flex flex-col w-full pb-20 overflow-x-hidden">
       <!-- Top Greeting & Motivation Banner -->
-      <section class="px-gutter pt-space-md pb-space-xs">
+      <section class="px-3 sm:px-gutter pt-space-md pb-space-xs">
         <div class="flex items-center justify-between">
-          <div>
+          <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <h1 class="font-hangul-title text-hangul-title text-on-surface font-bold">안녕하세요! 👋</h1>
+              <h1 class="font-hangul-title text-hangul-title text-on-surface font-bold text-base sm:text-lg truncate">안녕하세요! 👋</h1>
             </div>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 text-xs sm:text-sm">
               준비된 강좌를 선택해서 학습을 시작하세요.
             </p>
           </div>
@@ -17,12 +17,12 @@ export function renderLearnerView() {
       </section>
 
       <!-- 강좌 목록 -->
-      <section class="px-gutter pt-space-lg pb-space-lg">
-        <div class="flex items-center justify-between mb-space-md">
-          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">준비된 강좌</h3>
-          <span class="font-label-sm text-label-sm text-on-surface-variant" id="courses-count">0개</span>
+      <section class="px-3 sm:px-gutter pt-space-lg pb-space-lg">
+        <div class="flex items-center justify-between mb-space-md gap-2">
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold text-sm sm:text-base">준비된 강좌</h3>
+          <span class="font-label-sm text-label-sm text-on-surface-variant text-xs sm:text-sm flex-shrink-0" id="courses-count">0개</span>
         </div>
-        <div id="courses-list" class="flex flex-col gap-3">
+        <div id="courses-list" class="flex flex-col gap-3 w-full overflow-x-hidden">
           <!-- 로딩 상태 -->
           <div class="flex flex-col items-center justify-center py-16 gap-3">
             <span class="material-symbols-outlined text-[40px] text-on-surface-variant animate-pulse">hourglass_empty</span>
@@ -39,42 +39,122 @@ export function renderLearnerView() {
  */
 export function renderCourseCard(course) {
   return `
-    <div class="bg-surface-container-lowest rounded-2xl border border-surface-container overflow-hidden hover:shadow-md transition-all cursor-pointer course-card" data-course-id="${course.id}">
+    <div class="bg-surface-container-lowest rounded-xl sm:rounded-2xl border border-surface-container overflow-hidden hover:shadow-md transition-all cursor-pointer course-card w-full" data-course-id="${course.id}">
       <!-- 헤더 배경 -->
-      <div class="h-24 bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
-        <span class="material-symbols-outlined text-[40px] text-primary">school</span>
+      <div class="h-20 sm:h-24 bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[32px] sm:text-[40px] text-primary">school</span>
       </div>
 
       <!-- 컨텐츠 -->
-      <div class="p-space-md flex flex-col gap-3">
+      <div class="p-3 sm:p-space-md flex flex-col gap-2 sm:gap-3">
         <!-- 제목과 레벨 -->
         <div class="flex items-start justify-between gap-2">
-          <div class="flex-1">
-            <h4 class="font-headline-md text-headline-md text-on-surface font-bold line-clamp-2">${course.title}</h4>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">${course.description}</p>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-headline-md text-headline-md text-on-surface font-bold line-clamp-2 text-sm sm:text-base">${course.title}</h4>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2 text-xs sm:text-sm">${course.description}</p>
           </div>
-          <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-bold whitespace-nowrap">
+          <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-bold whitespace-nowrap text-xs flex-shrink-0">
             ${course.level || '미정'}
           </span>
         </div>
 
         <!-- 정보 -->
-        <div class="flex items-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
-          <div class="flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px]">play_circle</span>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-on-surface-variant font-label-sm text-label-sm text-xs sm:text-sm overflow-x-hidden">
+          <div class="flex items-center gap-1 whitespace-nowrap">
+            <span class="material-symbols-outlined text-[16px] flex-shrink-0">play_circle</span>
             <span>${course.totalLessons || 0}차시</span>
           </div>
-          <div class="flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px]">person</span>
-            <span>${course.instructor || '강사 미정'}</span>
+          <div class="flex items-center gap-1 whitespace-nowrap">
+            <span class="material-symbols-outlined text-[16px] flex-shrink-0">person</span>
+            <span class="truncate">${course.instructor || '강사 미정'}</span>
           </div>
         </div>
 
         <!-- 버튼 -->
-        <button class="w-full h-10 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold flex items-center justify-center gap-2 hover:bg-secondary/90 active:scale-[0.98] transition-all cursor-pointer mt-2">
+        <button class="w-full h-10 rounded-lg sm:rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-bold flex items-center justify-center gap-2 hover:bg-secondary/90 active:scale-[0.98] transition-all cursor-pointer mt-2 text-sm">
           <span>강의 보기</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * 레슨 상세 모달 (파트별 영상)
+ */
+export function renderLessonDetailModal(lesson, parts = []) {
+  const partTabs = parts.length > 0
+    ? parts.map((part, idx) => `
+        <button class="lesson-part-tab px-2 sm:px-3 py-2 rounded-lg font-label-sm text-label-sm border-b-2 transition-colors cursor-pointer text-xs sm:text-sm whitespace-nowrap ${idx === 0 ? 'border-secondary text-secondary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}" data-part-id="${part.id}" data-part-index="${idx}">
+          ${part.partName}
+        </button>
+      `).join('')
+    : '';
+
+  const partContent = parts.length > 0
+    ? parts.map((part, idx) => `
+        <div id="part-content-${part.id}" class="lesson-part-content ${idx !== 0 ? 'hidden' : ''} flex flex-col gap-3 sm:gap-4 w-full overflow-x-hidden">
+          <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+              <iframe
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                src="https://www.youtube.com/embed/${part.youtubeId}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="rounded-xl sm:rounded-2xl">
+              </iframe>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold line-clamp-2">${part.partName}</h4>
+              <span class="px-2 py-1 rounded-lg bg-primary/10 text-primary font-label-sm text-label-sm whitespace-nowrap text-xs sm:text-sm">⏱️ ${part.duration}분</span>
+            </div>
+            ${part.description ? `<p class="font-body-sm text-on-surface-variant text-xs sm:text-sm">${part.description}</p>` : ''}
+          </div>
+        </div>
+      `).join('')
+    : '<div class="flex items-center justify-center py-12 text-on-surface-variant">아직 준비 중인 강의입니다</div>';
+
+  return `
+    <div id="modal-lesson-detail" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-2 sm:p-4">
+      <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm" id="modal-lesson-overlay"></div>
+      <div class="relative w-full max-w-4xl bg-surface-container-lowest rounded-2xl sm:rounded-3xl shadow-xl border border-surface-container p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <!-- 헤더 -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg line-clamp-2">차시 ${lesson.lessonNumber} - ${lesson.title}</h2>
+            <p class="font-body-sm text-on-surface-variant mt-1 text-xs sm:text-sm line-clamp-2">${lesson.goal}</p>
+          </div>
+          <button class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high flex-shrink-0" id="btn-close-lesson-modal">
+            <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-on-surface-variant">close</span>
+          </button>
+        </div>
+
+        <!-- 수업 정보 -->
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 text-on-surface-variant font-label-sm text-label-sm text-xs sm:text-sm overflow-x-hidden">
+          <div class="flex items-center gap-1 whitespace-nowrap">
+            <span class="material-symbols-outlined text-[16px] flex-shrink-0">school</span>
+            <span class="truncate">배울 글자: ${lesson.learnLetters}</span>
+          </div>
+          <div class="flex items-center gap-1 whitespace-nowrap">
+            <span class="material-symbols-outlined text-[16px] flex-shrink-0">timer</span>
+            <span>총 50분</span>
+          </div>
+        </div>
+
+        <!-- 파트 탭 -->
+        <div class="flex gap-2 border-b border-surface-container overflow-x-auto -mx-3 sm:-mx-6 px-3 sm:px-6">
+          ${partTabs}
+        </div>
+
+        <!-- 파트 콘텐츠 -->
+        <div class="flex flex-col gap-3 sm:gap-4 w-full overflow-x-hidden">
+          ${partContent}
+        </div>
       </div>
     </div>
   `;
