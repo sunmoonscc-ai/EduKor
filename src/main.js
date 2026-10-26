@@ -610,7 +610,13 @@ async function loadLessons(courseId) {
 async function showLessonDetail(lesson) {
   try {
     // 레슨 파트 로드
-    const parts = await getLessonParts(lesson.id);
+    let parts = await getLessonParts(lesson.id);
+
+    // isShorts 필드가 없는 기존 데이터에 기본값 설정 (false = 16:9 일반 영상)
+    parts = parts.map(part => ({
+      ...part,
+      isShorts: part.isShorts ?? false  // undefined면 false로 설정
+    }));
 
     // 모달 HTML 생성
     const modalHTML = renderLessonDetailModal(lesson, parts);
@@ -1240,7 +1246,6 @@ function showPartDetailModal(part) {
   // part.isShorts는 이미 true/false로 설정되어 있음
 
   console.log('파트 데이터:', part);
-  alert(`isShorts: ${part.isShorts}\nyoutubeId: ${part.youtubeId}\npartName: ${part.partName}`);
 
   const modalHTML = renderPartDetailModal(part);
 
@@ -1261,12 +1266,11 @@ function showPartDetailModal(part) {
   modal = document.getElementById('modal-part-detail');
   modal?.classList.remove('hidden');
 
-  // 렌더링된 HTML 속성 확인
+  // 렌더링된 HTML 속성 확인 (콘솔)
   setTimeout(() => {
     const playerWrap = document.getElementById('playerWrap');
     const dataIsShorts = playerWrap?.getAttribute('data-is-shorts');
-    alert(`렌더링된 data-is-shorts: "${dataIsShorts}"\n버튼이 보이나요?`);
-    console.log('렌더링됨:', dataIsShorts, playerWrap);
+    console.log('🎬 렌더링됨 - data-is-shorts:', dataIsShorts);
   }, 200);
 
   // 팝업 스택에 추가
