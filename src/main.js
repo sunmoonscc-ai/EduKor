@@ -622,6 +622,8 @@ async function showLessonDetail(lesson) {
         window.history.replaceState(null, '');
       };
 
+      // 중복 등록 방지
+      window.removeEventListener('popstate', handleLessonPopState);
       window.addEventListener('popstate', handleLessonPopState);
     }
   } catch (error) {
