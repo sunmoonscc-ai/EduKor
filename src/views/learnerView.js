@@ -187,67 +187,45 @@ export function renderLessonDetailModal(lesson, parts = []) {
  */
 export function renderPartDetailModal(part) {
   return `
-    <div id="modal-part-detail" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black">
-      <div class="relative w-full h-full flex flex-col gap-3 sm:gap-4 p-3 sm:p-6 overflow-y-auto">
-        <!-- 헤더 -->
-        <div class="flex items-center justify-between gap-2 sticky top-0 bg-surface-container-lowest z-10 pb-2">
-          <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg flex-1 line-clamp-2">${part.partName}</h2>
-          <button class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high flex-shrink-0" id="btn-close-part-detail-modal">
-            <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-on-surface-variant">close</span>
-          </button>
-        </div>
+    <div id="modal-part-detail" class="fixed inset-0 z-[9999] hidden bg-black flex flex-col">
+      <!-- 헤더 -->
+      <div class="flex items-center justify-between gap-2 bg-black/90 backdrop-blur-sm p-2 sm:p-4 z-10">
+        <h2 class="font-headline-md text-headline-md text-on-surface font-bold text-base sm:text-lg flex-1 line-clamp-2">${part.partName}</h2>
+        <button class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high flex-shrink-0" id="btn-close-part-detail-modal">
+          <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-on-surface-variant">close</span>
+        </button>
+      </div>
 
-        <!-- 영상 -->
+      <!-- 영상 컨테이너 - 화면 가득 채움 -->
+      <div class="flex-1 w-full h-full flex items-center justify-center bg-black overflow-hidden">
         ${part.youtubeId ? `
-          <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
+          <div class="w-full h-full flex items-center justify-center">
             ${part.isShorts === true ? `
               <!-- YouTube Shorts: 9:16 비율 -->
-              <div style="position: relative; width: 100%; max-width: 450px; padding-bottom: 177.78%; margin: 0 auto;">
-                <iframe
-                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                  src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                  class="rounded-xl sm:rounded-2xl">
-                </iframe>
-              </div>
+              <iframe
+                style="width: 100%; height: 100%;"
+                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
             ` : `
               <!-- 일반 YouTube: 16:9 비율 -->
-              <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
-                <iframe
-                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                  src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                  class="rounded-xl sm:rounded-2xl">
-                </iframe>
-              </div>
+              <iframe
+                style="width: 100%; height: 100%;"
+                src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&autoplay=1"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
             `}
           </div>
-        ` : ''}
-
-        <!-- 정보 -->
-        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 text-on-surface-variant font-label-sm text-label-sm text-xs sm:text-sm">
-          <div class="flex items-center gap-1 whitespace-nowrap">
-            <span class="material-symbols-outlined text-[16px]">access_time</span>
-            <span>⏱️ ${part.duration}분</span>
+        ` : `
+          <div class="text-center text-on-surface-variant">
+            <span class="material-symbols-outlined text-[48px]">video_library</span>
+            <p class="mt-4">영상이 준비되지 않았습니다</p>
           </div>
-          ${part.partType ? `
-            <div class="flex items-center gap-1 whitespace-nowrap">
-              <span class="material-symbols-outlined text-[16px]">category</span>
-              <span>${part.partType}</span>
-            </div>
-          ` : ''}
-        </div>
-
-        <!-- 설명 -->
-        ${part.description ? `
-          <div class="border-t border-surface-container pt-3 sm:pt-4">
-            <p class="font-body-sm text-body-sm text-on-surface-variant text-xs sm:text-sm whitespace-pre-line">${part.description}</p>
-          </div>
-        ` : ''}
+        `}
       </div>
     </div>
   `;

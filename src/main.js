@@ -1170,46 +1170,44 @@ function closeLessonModal() {
 }
 
 function showPartDetailModal(part) {
-  const viewRoot = document.getElementById('view-root');
   const modalHTML = renderPartDetailModal(part);
 
-  // 차시 상세 모달 숨기기
+  // 차시 상세 모달 제거
   const lessonModal = document.getElementById('modal-lesson-detail');
   if (lessonModal) {
-    lessonModal.classList.add('hidden');
+    lessonModal.remove();
   }
 
-  // 모달을 뷰 루트에 추가 (이미 모달이 있으면 제거)
+  // 기존 파트 모달 제거
   let modal = document.getElementById('modal-part-detail');
   if (modal) {
     modal.remove();
   }
 
-  viewRoot.insertAdjacentHTML('beforeend', modalHTML);
+  // body에 직접 추가 (전체 화면 확보)
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
   modal = document.getElementById('modal-part-detail');
   modal?.classList.remove('hidden');
 
   // 닫기 버튼 이벤트
   document.getElementById('btn-close-part-detail-modal')?.addEventListener('click', () => {
-    modal?.classList.add('hidden');
-    // 차시 상세 모달 다시 표시
-    if (lessonModal) {
-      lessonModal.classList.remove('hidden');
-    }
-    setTimeout(() => modal?.remove(), 300);
+    closePartDetailModal();
   });
 
   // 배경(검은색) 클릭 시 닫기
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) {
-      modal.classList.add('hidden');
-      // 차시 상세 모달 다시 표시
-      if (lessonModal) {
-        lessonModal.classList.remove('hidden');
-      }
-      setTimeout(() => modal?.remove(), 300);
+      closePartDetailModal();
     }
   });
+}
+
+function closePartDetailModal() {
+  const modal = document.getElementById('modal-part-detail');
+  if (modal) {
+    modal.classList.add('hidden');
+    setTimeout(() => modal.remove(), 300);
+  }
 }
 
 async function handleLessonSubmit(e) {
