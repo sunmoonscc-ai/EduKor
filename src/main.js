@@ -1224,21 +1224,15 @@ function showPartDetailModal(part) {
 
     if (playerWrap && fsBtn) {
       const isShorts = playerWrap.getAttribute('data-is-shorts') === 'true';
-      console.log('isShorts:', isShorts, 'fsBtn:', fsBtn);
 
       if (isShorts) {
-        // 9:16 쇼츠: 자동으로 전체화면 상태로 표시
-        console.log('Applying pseudo-fs for shorts, showing button');
+        // 9:16 쇼츠: 자동으로 전체화면 상태로 표시 (버튼 없음)
         playerWrap.classList.add('pseudo-fs');
         document.body.classList.add('focus-shorts');
-
-        // 버튼을 반드시 보이게 설정 (!important 사용)
-        fsBtn.style.setProperty('display', 'block', 'important');
-        console.log('Button display set to:', fsBtn.style.display);
-      } else {
-        // 16:9 일반 영상: 버튼 숨기기
-        console.log('Hiding button for non-shorts');
         fsBtn.style.setProperty('display', 'none', 'important');
+      } else {
+        // 16:9 일반 영상: 버튼 표시
+        fsBtn.style.setProperty('display', 'block', 'important');
       }
     }
   }, 50);
