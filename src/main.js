@@ -1210,44 +1210,53 @@ function showPartDetailModal(part) {
       fsBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
 
-        // 이미 전체화면이면 해제
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-          return;
-        }
-
-        if (playerWrap.classList.contains('pseudo-fs')) {
+        // 이미 전체화면이거나 CSS 대체 모드면 해제
+        if (document.fullscreenElement || playerWrap.classList.contains('pseudo-fs')) {
+          try {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            }
+          } catch (err) {
+            console.warn('Fullscreen exit failed:', err);
+          }
           playerWrap.classList.remove('pseudo-fs');
           document.body.classList.remove('focus-shorts');
           return;
         }
 
-        // 진짜 전체화면 시도
+        // 진짜 전체화면 시도 (webkit 접두사 포함)
         try {
-          if (playerWrap.requestFullscreen) {
-            await playerWrap.requestFullscreen();
+          const requestFullscreenMethod =
+            playerWrap.requestFullscreen ||
+            playerWrap.webkitRequestFullscreen ||
+            playerWrap.mozRequestFullScreen ||
+            playerWrap.msRequestFullscreen;
+
+          if (requestFullscreenMethod) {
+            await requestFullscreenMethod.call(playerWrap);
             return;
           }
-          if (playerWrap.webkitRequestFullscreen) {
-            playerWrap.webkitRequestFullscreen();
-            return;
-          }
-        } catch (e) {
-          console.warn('Fullscreen API not supported:', e);
+        } catch (err) {
+          console.warn('Fullscreen API not supported or denied:', err);
         }
 
-        // 지원 안 되면 CSS 대체 모드
+        // 지원 안 되면 CSS 대체 모드 (iOS Safari 등)
         playerWrap.classList.add('pseudo-fs');
         document.body.classList.add('focus-shorts');
       });
 
-      // fullscreen 변화 감시
-      document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement && playerWrap.classList.contains('pseudo-fs')) {
+      // fullscreen 변화 감시 (상단·하단 메뉴 상태 동기화)
+      const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
           playerWrap.classList.remove('pseudo-fs');
           document.body.classList.remove('focus-shorts');
         }
-      });
+      };
+
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.addEventListener('msfullscreenchange', handleFullscreenChange);
     }
   }, 100);
 }

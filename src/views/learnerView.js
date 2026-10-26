@@ -106,13 +106,13 @@ export function renderLessonDetailModal(lesson, parts = []) {
               ${part.youtubeId ? `
                 <div class="bg-primary/10 rounded-xl sm:rounded-2xl overflow-hidden w-full">
                   ${part.isShorts === true ? `
-                    <!-- YouTube Shorts: 9:16 비율로 전체화면 표시 -->
-                    <div style="position: relative; width: 100%; max-width: 100%; padding-bottom: 177.78%; margin: 0 auto;">
+                    <!-- YouTube Shorts: 9:16 비율 (아코디언에서는 제한된 크기) -->
+                    <div style="position: relative; width: 100%; aspect-ratio: 9/16; max-width: 300px; margin: 0 auto; background: #000;">
                       <iframe
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                        src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
+                        src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0"
                         frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
                         allowfullscreen
                         class="rounded-xl sm:rounded-2xl">
                       </iframe>
@@ -122,9 +122,9 @@ export function renderLessonDetailModal(lesson, parts = []) {
                     <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
                       <iframe
                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                        src="https://www.youtube.com/embed/${part.youtubeId}?fs=1"
+                        src="https://www.youtube.com/embed/${part.youtubeId}?fs=1&rel=0&modestbranding=1"
                         frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
                         allowfullscreen
                         class="rounded-xl sm:rounded-2xl">
                       </iframe>
@@ -201,17 +201,17 @@ export function renderPartDetailModal(part) {
         ${part.youtubeId ? `
           ${part.isShorts === true ? `
             <!-- YouTube Shorts: 9:16 세로 비율 + 커스텀 전체화면 -->
-            <div id="playerWrap" class="relative w-auto h-full aspect-video" style="aspect-ratio: 9/16; max-height: 100vh; background: #000;">
+            <div id="playerWrap">
               <iframe
                 id="shortPlayer"
-                style="width: 100%; height: 100%;"
-                src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&rel=0&modestbranding=1"
+                class="shorts-player"
+                src="https://www.youtube.com/embed/${part.youtubeId}?playsinline=1&rel=0&modestbranding=1&fs=0"
                 frameborder="0"
                 title="YouTube Shorts"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
                 allowfullscreen>
               </iframe>
-              <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all" title="전체화면">
+              <button id="fsBtn" class="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white rounded-lg p-2 transition-all cursor-pointer" title="전체화면">
                 <span class="material-symbols-outlined text-[24px]">fullscreen</span>
               </button>
             </div>
@@ -235,33 +235,83 @@ export function renderPartDetailModal(part) {
       </div>
 
       <style>
+        #playerWrap {
+          width: 100%;
+          height: 100%;
+          aspect-ratio: 9/16;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #000;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .shorts-player {
+          width: 100%;
+          height: 100%;
+          aspect-ratio: 9/16;
+          border: none;
+          display: block;
+          object-fit: contain;
+        }
+
+        /* 정규 모드: 부모 컨테이너 내에서 최대 크기 유지 */
+        #playerWrap {
+          max-width: 100%;
+          max-height: 100%;
+        }
+
+        /* 전체화면 모드 */
         #playerWrap:fullscreen,
         #playerWrap.pseudo-fs {
           position: fixed;
           inset: 0;
           width: 100vw;
+          height: 100vh;
           height: 100dvh;
-          max-height: none;
           aspect-ratio: auto;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
+          z-index: 99999;
+          background-color: #000;
         }
-        #playerWrap:fullscreen #shortPlayer,
-        #playerWrap.pseudo-fs #shortPlayer {
-          height: 100%;
+
+        #playerWrap:fullscreen .shorts-player,
+        #playerWrap.pseudo-fs .shorts-player {
           width: auto;
+          height: 100dvh;
           aspect-ratio: 9/16;
-          max-width: 100%;
+          max-width: 100vw;
         }
+
+        #playerWrap #fsBtn {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          z-index: 20;
+        }
+
+        #playerWrap:fullscreen #fsBtn,
+        #playerWrap.pseudo-fs #fsBtn {
+          position: fixed;
+          top: 16px;
+          right: 16px;
+          z-index: 100000;
+        }
+
+        body.focus-shorts {
+          overflow: hidden !important;
+          position: fixed !important;
+          width: 100% !important;
+          height: 100% !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+
         body.focus-shorts header,
         body.focus-shorts nav,
-        body.focus-shorts footer {
+        body.focus-shorts footer,
+        body.focus-shorts #bottom-nav {
           display: none !important;
-        }
-        body.focus-shorts {
-          overflow: hidden;
         }
       </style>
     </div>
