@@ -750,7 +750,7 @@ async function initContentManagementView() {
 
   if (coursesSelectForLessons) {
     const optionHtml = '<option value="">강의를 선택하세요</option>' +
-      allTeachingCourses.map(course => `<option value="${course.id}">${course.title}</option>`).join('');
+      allTeachingCourses.map(course => `<option value="${course.id}">[${course.level}] ${course.title} (총 ${course.actualLessonCount || 0}차시)</option>`).join('');
     console.log('✏️ 드롭다운 HTML 설정:', optionHtml);
     coursesSelectForLessons.innerHTML = optionHtml;
 
@@ -1570,6 +1570,13 @@ function switchContentTab(tab) {
 async function loadTeachingCourses() {
   try {
     allTeachingCourses = await getAllTeachingCourses();
+
+    // 각 강의의 실제 차시 개수를 조회
+    for (const course of allTeachingCourses) {
+      const lessons = await getTeachingLessonsByCourseId(course.id);
+      course.actualLessonCount = lessons.length;
+    }
+
     renderCoursesList(allTeachingCourses);
   } catch (error) {
     console.error('❌ 강의 목록 로드 실패:', error);
